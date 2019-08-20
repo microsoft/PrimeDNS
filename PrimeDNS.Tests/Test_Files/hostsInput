@@ -1,0 +1,14 @@
+Host File used for testing.
+
+###---PrimeDNS-BEGIN-SECTION
+These lines
+
+should
+
+get removed
+
+
+###---PrimeDNS-END-SECTION
+
+There should not be any changes made at this portion.
+The number of lines in this file should remain 7+number of entries added.
