@@ -12,7 +12,7 @@ PrimeDNS is a DNS caching service that helps the user to continually maintain la
 		```
 	- This will create a folder \PrimeDNS\PrimeDNS\bin\Debug\netcoreapp2.1\win10-x86 containing the executables needed to run PrimeDNS.
 
-# Configure PrimeDNS to suite your purpose
+# Configure PrimeDNS to suit your purpose
 1. AppSettings.json
 	- The folder 'win10-x86' you created contains template AppSettings.json that you should edit to suit your needs.
 	- Telemetry options are by default set to false
