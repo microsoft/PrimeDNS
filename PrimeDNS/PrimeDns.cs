@@ -1,4 +1,11 @@
-﻿namespace PrimeDNS
+﻿// -----------------------------------------------------------------------
+// <copyright file="AssemblyInfo.cs" company="Microsoft">
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+// </copyright>
+// -----------------------------------------------------------------------
+
+namespace PrimeDNS
 {
     using PrimeDNS.DNS;
     using System;
@@ -18,9 +25,9 @@
         public static TimeToLiveUpdater TtlUpdater;
         public static DomainsConfig DomainsConfig;
 
-        public static SemaphoreSlim semaphore;
+        public static SemaphoreSlim Semaphore;
         public static int TtlUpdaterErrorCount;
-        public static CancellationToken dnsResolverCancellationToken;
+        public static CancellationToken DnsResolverCancellationToken;
         public static string PrimeDnsDataHome;
 
         internal PrimeDns()
@@ -32,18 +39,17 @@
         private static void Main(string[] args)
         {
             var primeDns = new PrimeDns();
-            if (args.Length > 0)
-                PrimeDnsDataHome = args[0];
-            else
-                PrimeDnsDataHome = null;
-            int dataExists = Config.GetConfig();
+
+            PrimeDnsDataHome = (args.Length > 0) ? args[0] : null;
+
+            var dataExists = Config.GetConfig();
             if (dataExists != 1)
             {
                 Log._LogInformation("********* PRIMEDNS CLOSES DUE TO LACK OF DATA *********", Logger.Logger.CStartUp, null);
             }
             else
             {
-                semaphore = new SemaphoreSlim(1, 1);
+                Semaphore = new SemaphoreSlim(1, 1);
 
                 if (Config.IsPrimeDnsEnabled)
                 {
@@ -122,7 +128,7 @@
                 Log._LogInformation("RAM Usage of PrimeDNS is - " + ramUsage, Logger.Logger.CStartUp, null);
                 Telemetry.Telemetry.PushRAMData(ramUsage);
 
-                nextStartTimeOfMapUpdater = nextStartTimeOfMapUpdater + TimeSpan.FromSeconds(MapUpdater.MapUpdaterFrequencyInSeconds);
+                nextStartTimeOfMapUpdater += TimeSpan.FromSeconds(MapUpdater.MapUpdaterFrequencyInSeconds);
                 var delayMapUpdater = nextStartTimeOfMapUpdater - DateTimeOffset.UtcNow;
                 if (delayMapUpdater > TimeSpan.Zero)
                     await Task.Delay(delayMapUpdater);           
@@ -130,14 +136,14 @@
                 {
                     TtlUpdaterErrorCount = 0;
                     await TtlUpdater.UpdateTtl(nextStartTimeOfTtlUpdater);
-                    nextStartTimeOfTtlUpdater = nextStartTimeOfTtlUpdater + TimeSpan.FromSeconds(TimeToLiveUpdater.timeToLiveUpdaterFrequencyInSeconds);
+                    nextStartTimeOfTtlUpdater += TimeSpan.FromSeconds(TimeToLiveUpdater.timeToLiveUpdaterFrequencyInSeconds);
                 }
                 if( (nextStartTimeOfWatcher <= nextStartTimeOfMapUpdater) && Config.IsDomainsUpdaterEnabled)
                 {
 
                     DomainsConfig.CallDomainsWatcher(nextStartTimeOfWatcher);
                     Config.CallAppConfigWatcher(nextStartTimeOfWatcher);
-                    nextStartTimeOfWatcher = nextStartTimeOfWatcher + TimeSpan.FromSeconds(Config.WatcherFrequencyInSeconds);
+                    nextStartTimeOfWatcher += TimeSpan.FromSeconds(Config.WatcherFrequencyInSeconds);
                 }
             }
         }

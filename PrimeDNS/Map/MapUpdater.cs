@@ -57,7 +57,7 @@
             if (index == 1)
             {
                 CancellationTokenSource source = new CancellationTokenSource();
-                PrimeDns.dnsResolverCancellationToken = source.Token;
+                PrimeDns.DnsResolverCancellationToken = source.Token;
                 source.Cancel();
                 t[0].Wait();
             }
@@ -85,7 +85,7 @@
                 return;
 
             CancellationTokenSource source = new CancellationTokenSource();
-            PrimeDns.dnsResolverCancellationToken = source.Token;
+            PrimeDns.DnsResolverCancellationToken = source.Token;
 
             var tasks = new List<Task<Tuple<PrimeDnsMapRow, bool>>>();
             foreach (string domain in criticalDomains)
@@ -93,7 +93,7 @@
                 if (DomainsConfig.IsDomainNameValid(domain))
                 {
                     var mapRow = new PrimeDnsMapRow(domain);
-                    tasks.Add(DoWorkAsync(mapRow, PrimeDns.dnsResolverCancellationToken));
+                    tasks.Add(DoWorkAsync(mapRow, PrimeDns.DnsResolverCancellationToken));
                 }
                 else
                 {
@@ -196,7 +196,7 @@
          */
         public static void WriteToPrimeDnsMap(PrimeDnsMapRow pMapRowToBeInserted)
         {
-            PrimeDns.semaphore.Wait();
+            PrimeDns.Semaphore.Wait();
             var insertSql = String.Format("Insert into " + AppConfig.CTableNamePrimeDnsMap + " ( HostName, IPAddressList, LastUpdatedTime, LastCheckedTime, TimeToLiveInSeconds) values (\"{0}\", \"{1}\", \"{2}\", \"{3}\", {4})",
                 pMapRowToBeInserted.HostName, pMapRowToBeInserted.GetStringOfIpAddressList(), pMapRowToBeInserted.LastUpdatedTime, pMapRowToBeInserted.LastCheckedTime, pMapRowToBeInserted.TimeToLiveInSeconds);
             try
@@ -208,7 +208,7 @@
             {                 
                 PrimeDns.Log._LogError("Error occured while inserting data into PrimeDNSMap table", Logger.CSqliteExecuteNonQuery, error);
             }
-            PrimeDns.semaphore.Release();
+            PrimeDns.Semaphore.Release();
         }
 
         /*
@@ -288,7 +288,7 @@
             {
                 Connection.Open();
                 CancellationTokenSource source = new CancellationTokenSource();
-                PrimeDns.dnsResolverCancellationToken = source.Token;
+                PrimeDns.DnsResolverCancellationToken = source.Token;
                 using (var c = new SqliteCommand(selectCommand, Connection))
                 {
                     using(var query = c.ExecuteReader())
@@ -313,7 +313,7 @@
                                     updatedMapRow.LastUpdatedTime = query.GetDateTime(3);
                                     updatedMapRow.TimeToLiveInSeconds = query.GetInt32(4);
 
-                                    tasks.Add(DoWorkAsync(updatedMapRow, PrimeDns.dnsResolverCancellationToken));
+                                    tasks.Add(DoWorkAsync(updatedMapRow, PrimeDns.DnsResolverCancellationToken));
                                 }
                                 if (!DomainsConfig.IsDomainNameValid(hostName))
                                 {
@@ -387,7 +387,7 @@
          */
         private static void UpdatePrimeDnsMapRow(PrimeDnsMapRow pUpdatedMapRow)
         {
-            PrimeDns.semaphore.Wait();
+            PrimeDns.Semaphore.Wait();
             string updateCommand = String.Format("UPDATE " + AppConfig.CTableNamePrimeDnsMap + " SET IPAddressList=\"{0}\", LastUpdatedTime=\"{1}\", LastCheckedTime=\"{2}\", TimeToLiveInSeconds={3}" +
                             " WHERE HostName=\"{4}\"", pUpdatedMapRow.GetStringOfIpAddressList(), pUpdatedMapRow.LastUpdatedTime, pUpdatedMapRow.LastCheckedTime, pUpdatedMapRow.TimeToLiveInSeconds, pUpdatedMapRow.HostName);
             try
@@ -399,7 +399,7 @@
             {               
                 PrimeDns.Log._LogError("Error occured while updating PrimeDNSMap table", Logger.CSqliteExecuteNonQuery, error);
             }
-            PrimeDns.semaphore.Release();
+            PrimeDns.Semaphore.Release();
         }
 
         /*
@@ -407,7 +407,7 @@
         */
         private static void UpdateLastCheckedTime(PrimeDnsMapRow pUpdatedMapRow)
         {
-            PrimeDns.semaphore.Wait();
+            PrimeDns.Semaphore.Wait();
             string updateCommand = String.Format("UPDATE " + AppConfig.CTableNamePrimeDnsMap + " SET LastCheckedTime=\"{0}\" " +
                             " WHERE HostName=\"{1}\"", pUpdatedMapRow.LastCheckedTime, pUpdatedMapRow.HostName);
             try
@@ -419,7 +419,7 @@
             {
                 PrimeDns.Log._LogError("Error occured while updating PrimeDNSMap table for Last Checked Time", Logger.CSqliteExecuteNonQuery, error);
             }
-            PrimeDns.semaphore.Release();
+            PrimeDns.Semaphore.Release();
         }
 
         /*
@@ -427,7 +427,7 @@
          */
         private static void DeletePrimeDnsMapRow(string pHostName)
         {
-            PrimeDns.semaphore.Wait();
+            PrimeDns.Semaphore.Wait();
             string deleteCommand = String.Format("DELETE FROM " + AppConfig.CTableNamePrimeDnsMap + " WHERE HostName=\"{0}\"", pHostName);
             try
             {
@@ -438,7 +438,7 @@
             {               
                 PrimeDns.Log._LogError("Error occured while deleting row from PrimeDNSMap table", Logger.CSqliteExecuteNonQuery, error);
             }
-            PrimeDns.semaphore.Release();
+            PrimeDns.Semaphore.Release();
         }       
 
         private static async Task<Tuple<PrimeDnsMapRow,bool>> DoWorkAsync(PrimeDnsMapRow pMapRow, CancellationToken pToken)

@@ -89,7 +89,7 @@
             if (index == 1)
             {
                 CancellationTokenSource source = new CancellationTokenSource();
-                PrimeDns.dnsResolverCancellationToken = source.Token;
+                PrimeDns.DnsResolverCancellationToken = source.Token;
                 source.Cancel();
                 t[0].Wait();
             }
@@ -164,7 +164,7 @@
         {
             var tasks = new List<Task<Tuple<PrimeDnsMapRow, bool>>>();
             CancellationTokenSource source = new CancellationTokenSource();
-            PrimeDns.dnsResolverCancellationToken = source.Token;
+            PrimeDns.DnsResolverCancellationToken = source.Token;
 
             foreach (string domain in _criticalDomains)
             {
@@ -181,7 +181,7 @@
                     if (IsDomainNameValid(domain))
                     {
                         var mapRow = new PrimeDnsMapRow(domain);
-                        tasks.Add(DoWorkAsync(mapRow, PrimeDns.dnsResolverCancellationToken));
+                        tasks.Add(DoWorkAsync(mapRow, PrimeDns.DnsResolverCancellationToken));
                     }
                     else
                     {

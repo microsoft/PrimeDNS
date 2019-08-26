@@ -211,7 +211,7 @@
          */
         private static string GetPrimeDnsSectionEntries()
         {
-            PrimeDns.semaphore.Wait();
+            PrimeDns.Semaphore.Wait();
             string entries;
             stringBuilder =  new StringBuilder("");
             var selectCommand = String.Format("Select * from " + AppConfig.CTableNamePrimeDnsMap +
@@ -250,7 +250,7 @@
             }
             entries = stringBuilder.ToString();
             stringBuilder.Clear();
-            PrimeDns.semaphore.Release();
+            PrimeDns.Semaphore.Release();
             return entries;
         }
 
