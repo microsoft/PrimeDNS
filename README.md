@@ -24,7 +24,10 @@ PrimeDNS is a DNS caching service that helps the user to continually maintain la
 3. Data Folder Location
 	- The default data (config files) folder is the folder containing PrimeDNS executables. 
 	- But PrimeDNS provides you the facility to separate your data folder and we **highly recommend** that you create a separate data folder.
-	- To do this copy the **Files**  folder from PrimeDNS\PrimeDNS and paste it into any location that suits you, let's call this location - <primednsdata>
+	- To do this copy the **Files**  folder from PrimeDNS\PrimeDNS and paste it into any location that suits you, let's call this location -
+		```
+		<primednsdata>
+		```
 	- Now, edit the AppSettings.json and Domains.json file in this newly created Files folder as suggested above.
 	- Once this is done, you can run PrimeDNS by using the following command
 		```
