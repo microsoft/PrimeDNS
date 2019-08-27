@@ -4,7 +4,6 @@
  namespace PrimeDNS.DNS
 {
     using DnsClient;
-    using DnsClient.Protocol;
     using Map;
     using System;
     using System.Collections.Generic;
@@ -17,69 +16,48 @@
     {
         public static async Task<Tuple<PrimeDnsMapRow,bool>> DnsResolve(PrimeDnsMapRow pMapRow, CancellationToken pToken)
         {
-            int newlyAddedIpAddressCount = 0;
-            int removedIpAddressCount = 0;
-            bool isChanged = false;
-            var lookup = new LookupClient();
-
-            lookup.UseCache = false;
-
+            var newlyAddedIpAddressCount = 0;
+            var removedIpAddressCount = 0;
+            var isChanged = false;
+            var lookup = new LookupClient
+            {
+                UseCache = false
+            };
 
             try
             {
-                List<IPAddress> IpToBeAdded = new List<IPAddress>();
+                var ipToBeAdded = new List<IPAddress>();
 
                 var result = await lookup.QueryAsync(pMapRow.HostName, QueryType.A, pToken);
                 if(result.Header.ResponseCode == DnsResponseCode.NoError)
                 {
                     pMapRow.LastCheckedTime = DateTime.Now;
                     var records = result.Answers.ARecords().Distinct();
-                    foreach (ARecord ar in records)
+                    var aRecords = records.ToList();
+                    foreach (var ar in from ar in aRecords let flag = Enumerable.Contains(pMapRow.IpAddressList, ar?.Address) where !flag select ar)
                     {
-                        bool flag = false;
-                        foreach (IPAddress ip in pMapRow.IpAddressList)
-                        {
-                            if (ip.Equals(ar?.Address))
-                            {
-                                flag = true;
-                                break;
-                            }
-                        }
-                        if (!flag)
-                        {
-                            IpToBeAdded.Add(ar?.Address);
-                            pMapRow.LastUpdatedTime = DateTime.Now;
-                            newlyAddedIpAddressCount++;
-                        }
+                        ipToBeAdded.Add(ar?.Address);
+                        pMapRow.LastUpdatedTime = DateTime.Now;
+                        newlyAddedIpAddressCount++;
                     }
 
-                    List<IPAddress> IpToBeRemoved = new List<IPAddress>();
+                    var ipToBeRemoved = new List<IPAddress>();
 
-                    foreach (IPAddress ip in pMapRow.IpAddressList)
+                    foreach (var ip in pMapRow.IpAddressList)
                     {
-                        bool flag = false;
-                        foreach (ARecord ar in records)
-                        {
-                            if (ip.Equals(ar?.Address))
-                            {
-                                flag = true;
-                                break;
-                            }
-                        }
-                        if (!flag)
-                        {
-                            IpToBeRemoved.Add(ip);
-                            pMapRow.LastUpdatedTime = DateTime.Now;
-                            removedIpAddressCount++;
-                        }
+                        var flag = aRecords.Any(ar => ip.Equals(ar?.Address));
+                        if (flag) continue;
+                        ipToBeRemoved.Add(ip);
+                        pMapRow.LastUpdatedTime = DateTime.Now;
+                        removedIpAddressCount++;
                     }
 
-                    foreach (IPAddress i in IpToBeAdded)
+                    foreach (var i in ipToBeAdded)
                     {
                         pMapRow.IpAddressList.Add(i);
                     }
 
-                    foreach (IPAddress i in IpToBeRemoved)
+                    foreach (var i in ipToBeRemoved)
                     {
                         pMapRow.IpAddressList.Remove(i);
                     }
