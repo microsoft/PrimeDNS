@@ -7,9 +7,8 @@
 
 namespace PrimeDNS
 {
-    using PrimeDNS.DNS;
+    using DNS;
     using System;
-    using System.Collections.Generic;
     using System.IO;
     using System.Threading;
     using System.Threading.Tasks;
@@ -38,6 +37,9 @@ namespace PrimeDNS
 
         private static void Main(string[] args)
         {
+            /*
+             *  The following assignments is made to trigger the constructor of PrimeDNS class. It won't work without that.
+             */
             var primeDns = new PrimeDns();
 
             PrimeDnsDataHome = (args.Length > 0) ? args[0] : null;
@@ -149,44 +151,6 @@ namespace PrimeDNS
         }
 
         /*
-        private static void RunMapUpdaterWithCancellationEnabled(DateTimeOffset pT)
-        {
-            Task[] t = new Task[2]
-                {
-                    Map.MapUpdater.UpdateMap(pT),
-                    Task.Delay(new TimeSpan(0, 0, 300))
-                };
-
-            int index = Task.WaitAny(t);
-            if (index == 1)
-            {
-                CancellationTokenSource source = new CancellationTokenSource();
-                dnsResolverCancellationToken = source.Token;
-                source.Cancel();
-                t[0].Wait();
-            }      
-        }
-
-        private static void RunDomainsUpdaterWithCancellationEnabled(DateTimeOffset pT)
-        {
-            Task[] t = new Task[2]
-                {
-                    DomainsConfig.CallDomainsWatcher(pT),
-                    Task.Delay(new TimeSpan(0, 0, 300))
-                };
-
-            int index = Task.WaitAny(t[0], t[1]);
-            if(index == 1)
-            {
-                CancellationTokenSource source = new CancellationTokenSource();
-                dnsResolverCancellationToken = source.Token;
-                source.Cancel();
-                t[0].Wait();
-            }          
-        }
-        */
-
-        /*
          * RunHostFileUpdater() runs an infinite loop that calls UpdateHostfile() repeatedly on a set frequency.
          */
         private static async Task RunHostFileUpdater()
@@ -196,7 +160,7 @@ namespace PrimeDNS
             {
                 HostFileUpdater.UpdateHostfile(nextStartTimeOfHostFileUpdater);
 
-                nextStartTimeOfHostFileUpdater = nextStartTimeOfHostFileUpdater + TimeSpan.FromSeconds(HostFileUpdater.HostFileUpdaterFrequencyInSeconds);
+                nextStartTimeOfHostFileUpdater += TimeSpan.FromSeconds(HostFileUpdater.HostFileUpdaterFrequencyInSeconds);
                 var delayHostFileUpdater = nextStartTimeOfHostFileUpdater - DateTimeOffset.UtcNow;
                 if (delayHostFileUpdater > TimeSpan.Zero)
                     await Task.Delay(delayHostFileUpdater);       

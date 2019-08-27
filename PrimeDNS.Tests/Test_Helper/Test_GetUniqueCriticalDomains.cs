@@ -15,7 +15,7 @@
             JToken[] expectedOutput = { "www.bing.com", "www.goodreads.com", "www.dhamma.org" };
 
             var actualOutput = JsonHelper.GetUniqueCriticalDomains(input);
-            var isEqual = Enumerable.SequenceEqual(expectedOutput, actualOutput);
+            var isEqual = expectedOutput.SequenceEqual(actualOutput);
 
             Assert.IsTrue(isEqual);
         }

@@ -2,20 +2,18 @@
 {
     using System.IO;
 
-    class FileComparisonHelper
+    internal class FileComparisonHelper
     {
-        public static bool FilesAreEqual(string p_first, string p_second)
+        public static bool FilesAreEqual(string pFirst, string pSecond)
         {
-            string s1 = File.ReadAllText(p_first);
-            string s2 = File.ReadAllText(p_second);
+            var s1 = File.ReadAllText(pFirst);
+            var s2 = File.ReadAllText(pSecond);
 
             s1 = s1.Replace("\r", "");
             s2 = s2.Replace("\r", "");
 
-            bool result = s2.Equals(s1);
-            if (result)
-                return true;
-            return false;
+            var result = s2.Equals(s1);
+            return result;
         }
     }
 }
