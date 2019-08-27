@@ -1,4 +1,9 @@
-﻿namespace PrimeDNS
+﻿/* -----------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License.
+ * ----------------------------------------------------------------------- */
+
+namespace PrimeDNS
 {
     using System;
     using System.IO;
@@ -44,11 +49,11 @@
         public int ParallelDnsCallsLimit;
         public int ParallelTtlCallsLimit;
 
-        public const string CTableNamePrimeDnsMap = "PrimeDNSMap";
-        public const string CTableNamePrimeDnsState = "PrimeDNSState";
-        public const string CPrimeDnsSectionCreated = "PrimeDNSSectionCreated";
-        public const string CPrimeDnsMapCreated = "PrimeDNSMapCreated";
-        public const string CPrimeDnsCriticalDomainsUpdated = "PrimeDNSCriticalDomainsUpdated";
+        public const string ConstTableNamePrimeDnsMap = "PrimeDNSMap";
+        public const string ConstTableNamePrimeDnsState = "PrimeDNSState";
+        public const string ConstPrimeDnsSectionCreated = "PrimeDNSSectionCreated";
+        public const string ConstPrimeDnsMapCreated = "PrimeDNSMapCreated";
+        public const string ConstPrimeDnsCriticalDomainsUpdated = "PrimeDNSCriticalDomainsUpdated";
 
         public static IConfiguration Configuration { get; set; }
         public int GetConfig()

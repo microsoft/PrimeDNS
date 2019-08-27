@@ -47,7 +47,7 @@ namespace PrimeDNS.Map
         {
             PrimeDns.Log._LogInformation("Map Updater Started at Time : " + time.ToString(), Logger.ConstStartUp, null);
             Telemetry.Telemetry.PushStatusOfThread("MapUpdater", "Started");
-            if (!SqliteConnect.CheckPrimeDnsState(AppConfig.CPrimeDnsMapCreated))
+            if (!SqliteConnect.CheckPrimeDnsState(AppConfig.ConstPrimeDnsMapCreated))
             {
                 CreatePrimeDnsMap().Wait();
             }
@@ -76,11 +76,11 @@ namespace PrimeDNS.Map
          */
         internal static async Task CreatePrimeDnsMap()
         {
-            var isPrimeDnsMapPresent = SqliteConnect.IsTablePresent(AppConfig.CTableNamePrimeDnsMap, _mapConnectionString);
+            var isPrimeDnsMapPresent = SqliteConnect.IsTablePresent(AppConfig.ConstTableNamePrimeDnsMap, _mapConnectionString);
             if (isPrimeDnsMapPresent)
             {
                 PrimeDns.Log._LogWarning("PrimeDNSMap Table present in DB, dropping it and creating again.", Logger.ConstPrimeDnsStateIntegrity, null);
-                SqliteConnect.DropTable(AppConfig.CTableNamePrimeDnsMap, _mapConnectionString);
+                SqliteConnect.DropTable(AppConfig.ConstTableNamePrimeDnsMap, _mapConnectionString);
             }
             CreateTable_PrimeDNSMap();
             MakePrimeDnsMapCreatedTrue();
@@ -165,7 +165,7 @@ namespace PrimeDNS.Map
          */
         private static void CreateTable_PrimeDNSMap()
         {          
-            var createCommand = "Create table " + AppConfig.CTableNamePrimeDnsMap +
+            var createCommand = "Create table " + AppConfig.ConstTableNamePrimeDnsMap +
                                 " ( HostName varchar(100), IPAddressList varchar(200), LastUpdatedTime datetime, LastCheckedTime datetime, TimeToLiveInSeconds int )";
             try
             {
@@ -184,7 +184,7 @@ namespace PrimeDNS.Map
          */
         private static void CreateTable_PrimeDNSState()
         {
-            var createCommand = "Create table " + AppConfig.CTableNamePrimeDnsState +
+            var createCommand = "Create table " + AppConfig.ConstTableNamePrimeDnsState +
                                 " ( FlagName varchar(100), FlagValue boolean )";
             try
             {
@@ -203,7 +203,7 @@ namespace PrimeDNS.Map
         public static void WriteToPrimeDnsMap(PrimeDnsMapRow pMapRowToBeInserted)
         {
             PrimeDns.Semaphore.Wait();
-            var insertSql = "Insert into " + AppConfig.CTableNamePrimeDnsMap +
+            var insertSql = "Insert into " + AppConfig.ConstTableNamePrimeDnsMap +
                             $" ( HostName, IPAddressList, LastUpdatedTime, LastCheckedTime, TimeToLiveInSeconds) values (\"{pMapRowToBeInserted.HostName}\", \"{pMapRowToBeInserted.GetStringOfIpAddressList()}\", \"{pMapRowToBeInserted.LastUpdatedTime}\", \"{pMapRowToBeInserted.LastCheckedTime}\", {pMapRowToBeInserted.TimeToLiveInSeconds})";
             try
             {
@@ -222,8 +222,8 @@ namespace PrimeDNS.Map
          */
         private static void MakePrimeDnsMapCreatedTrue()
         {
-            var updateCommand = "UPDATE " + AppConfig.CTableNamePrimeDnsState + " SET FlagValue=1" +
-                                $" WHERE FlagName=\"{AppConfig.CPrimeDnsMapCreated}\"";
+            var updateCommand = "UPDATE " + AppConfig.ConstTableNamePrimeDnsState + " SET FlagValue=1" +
+                                $" WHERE FlagName=\"{AppConfig.ConstPrimeDnsMapCreated}\"";
             try
             {
                 var numberOfRowsUpdated = SqliteConnect.ExecuteNonQuery(updateCommand, _stateConnectionString);
@@ -241,8 +241,8 @@ namespace PrimeDNS.Map
         internal static void CreateAndInitializePrimeDnsState(int pSectionCreatedFlag, int pMapCreatedFlag, int pCriticalDomainsUpdatedFlag)
         {
             CreateTable_PrimeDNSState();
-            var insertCommand = "Insert into " + AppConfig.CTableNamePrimeDnsState +
-                                $" values (\"{AppConfig.CPrimeDnsSectionCreated}\", {pSectionCreatedFlag})";
+            var insertCommand = "Insert into " + AppConfig.ConstTableNamePrimeDnsState +
+                                $" values (\"{AppConfig.ConstPrimeDnsSectionCreated}\", {pSectionCreatedFlag})";
             try
             {
                 SqliteConnect.ExecuteNonQuery(insertCommand, _stateConnectionString);
@@ -253,8 +253,8 @@ namespace PrimeDNS.Map
                 PrimeDns.Log._LogError("Error occured while Initializing PrimeDNSSectionCreated as False in the PrimeDNSState", Logger.ConstPrimeDnsStateIntegrity, error);
             }
 
-            insertCommand = "Insert into " + AppConfig.CTableNamePrimeDnsState +
-                            $" values (\"{AppConfig.CPrimeDnsMapCreated}\", {pMapCreatedFlag})";
+            insertCommand = "Insert into " + AppConfig.ConstTableNamePrimeDnsState +
+                            $" values (\"{AppConfig.ConstPrimeDnsMapCreated}\", {pMapCreatedFlag})";
             try
             {
                 SqliteConnect.ExecuteNonQuery(insertCommand, _stateConnectionString);
@@ -265,8 +265,8 @@ namespace PrimeDNS.Map
                 PrimeDns.Log._LogError("Error occured while Initializing PrimeDNSMapCreated as False in the PrimeDNSState", Logger.ConstPrimeDnsStateIntegrity, error);
             }
 
-            insertCommand = "Insert into " + AppConfig.CTableNamePrimeDnsState +
-                            $" values (\"{AppConfig.CPrimeDnsCriticalDomainsUpdated}\", {pCriticalDomainsUpdatedFlag})";
+            insertCommand = "Insert into " + AppConfig.ConstTableNamePrimeDnsState +
+                            $" values (\"{AppConfig.ConstPrimeDnsCriticalDomainsUpdated}\", {pCriticalDomainsUpdatedFlag})";
             try
             {
                 SqliteConnect.ExecuteNonQuery(insertCommand, _stateConnectionString);
@@ -289,7 +289,7 @@ namespace PrimeDNS.Map
         {
             PrimeDns.Log._LogInformation("UpdatePrimeDNSMap Started", Logger.ConstStartUp, null);
 
-            var  selectCommand = "Select * from " + AppConfig.CTableNamePrimeDnsMap;
+            var  selectCommand = "Select * from " + AppConfig.ConstTableNamePrimeDnsMap;
             var tasks = new List<Task<Tuple<PrimeDnsMapRow, bool>>>();
             var hostNamesToBeDeleted = new List<string>();
 
@@ -397,7 +397,7 @@ namespace PrimeDNS.Map
         private static void UpdatePrimeDnsMapRow(PrimeDnsMapRow pUpdatedMapRow)
         {
             PrimeDns.Semaphore.Wait();
-            var updateCommand = "UPDATE " + AppConfig.CTableNamePrimeDnsMap +
+            var updateCommand = "UPDATE " + AppConfig.ConstTableNamePrimeDnsMap +
                                 $" SET IPAddressList=\"{pUpdatedMapRow.GetStringOfIpAddressList()}\", LastUpdatedTime=\"{pUpdatedMapRow.LastUpdatedTime}\", LastCheckedTime=\"{pUpdatedMapRow.LastCheckedTime}\", TimeToLiveInSeconds={pUpdatedMapRow.TimeToLiveInSeconds}" +
                                 $" WHERE HostName=\"{pUpdatedMapRow.HostName}\"";
             try
@@ -418,7 +418,7 @@ namespace PrimeDNS.Map
         private static void UpdateLastCheckedTime(PrimeDnsMapRow pUpdatedMapRow)
         {
             PrimeDns.Semaphore.Wait();
-            var updateCommand = "UPDATE " + AppConfig.CTableNamePrimeDnsMap +
+            var updateCommand = "UPDATE " + AppConfig.ConstTableNamePrimeDnsMap +
                                 $" SET LastCheckedTime=\"{pUpdatedMapRow.LastCheckedTime}\" " +
                                 $" WHERE HostName=\"{pUpdatedMapRow.HostName}\"";
             try
@@ -440,7 +440,7 @@ namespace PrimeDNS.Map
         {
             PrimeDns.Semaphore.Wait();
             var deleteCommand =
-                "DELETE FROM " + AppConfig.CTableNamePrimeDnsMap + $" WHERE HostName=\"{pHostName}\"";
+                "DELETE FROM " + AppConfig.ConstTableNamePrimeDnsMap + $" WHERE HostName=\"{pHostName}\"";
             try
             {
                 var query = SqliteConnect.ExecuteNonQuery(deleteCommand, _mapConnectionString);

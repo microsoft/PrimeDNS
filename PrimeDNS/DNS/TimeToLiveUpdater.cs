@@ -32,7 +32,7 @@ namespace PrimeDNS.DNS
 
         internal async Task UpdateTimeToLive()
         {
-            var selectCommand = string.Format("Select * from " + AppConfig.CTableNamePrimeDnsMap);
+            var selectCommand = string.Format("Select * from " + AppConfig.ConstTableNamePrimeDnsMap);
             var tasks = new List<Task<Tuple<PrimeDnsMapRow, bool>>>();
             var ttlUpdateList = new List<PrimeDnsMapRow>();
 
@@ -112,7 +112,7 @@ namespace PrimeDNS.DNS
 
         private static void UpdatePrimeDnsMapRow(string pDomain, int pUpdatedTtl)
         {
-            var updateCommand = "UPDATE " + AppConfig.CTableNamePrimeDnsMap +
+            var updateCommand = "UPDATE " + AppConfig.ConstTableNamePrimeDnsMap +
                                 $" SET TimeToLiveInSeconds={pUpdatedTtl}" + $" WHERE HostName={pDomain}";
             try
             {

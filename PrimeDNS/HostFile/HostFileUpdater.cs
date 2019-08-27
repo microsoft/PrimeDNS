@@ -44,7 +44,7 @@ namespace PrimeDNS.HostFile
             
             PrimeDns.Log._LogInformation("Host File Updater Started at Time : " + time.ToString(), Logger.ConstStartUp, null);
             Telemetry.Telemetry.PushStatusOfThread("HostFileUpdater", "Started");
-            if (!SqliteConnect.CheckPrimeDnsState(AppConfig.CPrimeDnsSectionCreated))
+            if (!SqliteConnect.CheckPrimeDnsState(AppConfig.ConstPrimeDnsSectionCreated))
             {
                 CreatePrimeDnsSection();
                 MakePrimeDnsSectionCreatedTrue();
@@ -197,8 +197,8 @@ namespace PrimeDNS.HostFile
          */
         private static void MakePrimeDnsSectionCreatedTrue()
         {
-            var updateCommand = "UPDATE " + AppConfig.CTableNamePrimeDnsState + " SET FlagValue=1" +
-                                $" WHERE FlagName=\"{AppConfig.CPrimeDnsSectionCreated}\"";         
+            var updateCommand = "UPDATE " + AppConfig.ConstTableNamePrimeDnsState + " SET FlagValue=1" +
+                                $" WHERE FlagName=\"{AppConfig.ConstPrimeDnsSectionCreated}\"";         
             try
             {
                 var numberOfRowsUpdated = SqliteConnect.ExecuteNonQuery(updateCommand, _stateConnectionString);
@@ -219,7 +219,7 @@ namespace PrimeDNS.HostFile
             PrimeDns.Semaphore.Wait();
             string entries;
             _stringBuilder =  new StringBuilder("");
-            var selectCommand = "Select * from " + AppConfig.CTableNamePrimeDnsMap +
+            var selectCommand = "Select * from " + AppConfig.ConstTableNamePrimeDnsMap +
                                 $" WHERE TimeToLiveInSeconds > {PrimeDns.Config.TimeToLiveThresholdInSeconds}";
             try
             {

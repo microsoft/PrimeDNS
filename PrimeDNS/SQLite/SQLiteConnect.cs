@@ -99,7 +99,7 @@ namespace PrimeDNS.SQLite
         public static bool CheckPrimeDnsState(string pState)
         {
             var flagToReturn = false;
-            var selectCommand = "select * from " + AppConfig.CTableNamePrimeDnsState;
+            var selectCommand = "select * from " + AppConfig.ConstTableNamePrimeDnsState;
             try
             {
                 using(var connection = new SqliteConnection(PrimeDns.Config.StateConnectionString))

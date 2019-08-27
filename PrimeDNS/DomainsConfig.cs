@@ -49,7 +49,7 @@
         {
             if (File.Exists(PrimeDns.Config.MapDatabasePath))
             {
-                    string selectCommand = String.Format("Select hostname from " + AppConfig.CTableNamePrimeDnsMap);
+                    string selectCommand = String.Format("Select hostname from " + AppConfig.ConstTableNamePrimeDnsMap);
                     SqliteDataReader query = null;
 
                     using (var Connection = new SqliteConnection(mapConnectionString))
