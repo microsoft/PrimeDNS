@@ -1,4 +1,9 @@
-﻿namespace PrimeDNS
+﻿/* -----------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License.
+ * ----------------------------------------------------------------------- */
+
+namespace PrimeDNS
 {
     using Newtonsoft.Json.Linq;
     using System.Collections.Generic;
@@ -14,7 +19,7 @@
 
     internal class DomainsConfig
     {
-        private static string mapConnectionString;
+        private static string _mapConnectionString;
 
         /*
          * _criticalDomains stores the Critical Domain names taken from Domains.json
@@ -34,7 +39,7 @@
          */
         public DomainsConfig()
         {
-            mapConnectionString = PrimeDns.Config.MapConnectionString;
+            _mapConnectionString = PrimeDns.Config.MapConnectionString;
             DomainYetToBeAddedToMap = new Dictionary<string, bool>();
             IsDomainCritical = new Dictionary<string, bool>();
 
@@ -47,28 +52,26 @@
 
         private void CreateDomainCriticalListFromMap()
         {
-            if (File.Exists(PrimeDns.Config.MapDatabasePath))
+            if (!File.Exists(PrimeDns.Config.MapDatabasePath)) return;
+            var selectCommand = "Select hostname from " + AppConfig.ConstTableNamePrimeDnsMap;
+            SqliteDataReader query = null;
+
+            using (var connection = new SqliteConnection(_mapConnectionString))
             {
-                    string selectCommand = String.Format("Select hostname from " + AppConfig.ConstTableNamePrimeDnsMap);
-                    SqliteDataReader query = null;
+                connection.Open();
+                using (var c = new SqliteCommand(selectCommand, connection))
+                {
+                    query = c.ExecuteReader();
 
-                    using (var Connection = new SqliteConnection(mapConnectionString))
+                    while (query.Read())
                     {
-                        Connection.Open();
-                        using (var c = new SqliteCommand(selectCommand, Connection))
-                        {
-                            query = c.ExecuteReader();
-
-                            while (query.Read())
-                            {
-                                IsDomainCritical.Add(query.GetString(0), true);
-                            }
-                        }
-                        Connection.Close();
-                        GC.Collect();
-                        GC.WaitForPendingFinalizers();
+                        IsDomainCritical.Add(query.GetString(0), true);
                     }
                 }
+                connection.Close();
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+            }
         }
 
         internal void CallDomainsWatcher(DateTimeOffset time)
@@ -79,16 +82,16 @@
             if (domainsList == null)
                 return;
 
-            Task[] t = new Task[2]
+            var t = new Task[2]
                 {
                     AddNewEntriesToPrimeDnsMap(),
                     Task.Delay(new TimeSpan(0, 0, 300))
                 };
 
-            int index = Task.WaitAny(t[0], t[1]);
+            var index = Task.WaitAny(t[0], t[1]);
             if (index == 1)
             {
-                CancellationTokenSource source = new CancellationTokenSource();
+                var source = new CancellationTokenSource();
                 PrimeDns.DnsResolverCancellationToken = source.Token;
                 source.Cancel();
                 t[0].Wait();
@@ -163,7 +166,7 @@
         private async Task AddNewEntriesToPrimeDnsMap()
         {
             var tasks = new List<Task<Tuple<PrimeDnsMapRow, bool>>>();
-            CancellationTokenSource source = new CancellationTokenSource();
+            var source = new CancellationTokenSource();
             PrimeDns.DnsResolverCancellationToken = source.Token;
 
             foreach (string domain in _criticalDomains)
@@ -209,38 +212,38 @@
             }
             if (tasks.Count > 0)
             {
-                foreach (var task in await Task.WhenAll(tasks))
+                foreach (var (item1, item2) in await Task.WhenAll(tasks))
                 {
-                    if (task.Item2)
+                    if (item2)
                     {
                         try
                         {
-                            if (DomainYetToBeAddedToMap[task.Item1.HostName])
+                            if (DomainYetToBeAddedToMap[item1.HostName])
                             {
-                                PrimeDns.Log._LogInformation(" New Domain successfully added to PrimeDNSMap " + task.Item1.HostName, Logger.Logger.ConstDomainsWatcher, null);
-                                DomainYetToBeAddedToMap.Remove(task.Item1.HostName);
+                                PrimeDns.Log._LogInformation(" New Domain successfully added to PrimeDNSMap " + item1.HostName, Logger.Logger.ConstDomainsWatcher, null);
+                                DomainYetToBeAddedToMap.Remove(item1.HostName);
                             }
                                 
                         }
                         catch (KeyNotFoundException)
                         {
-                            PrimeDns.Log._LogInformation("Added the New Domain to PrimeDNSMap " + task.Item1.HostName, Logger.Logger.ConstDomainsWatcher, null);
+                            PrimeDns.Log._LogInformation("Added the New Domain to PrimeDNSMap " + item1.HostName, Logger.Logger.ConstDomainsWatcher, null);
                         }
-                        MapUpdater.WriteToPrimeDnsMap(task.Item1);
-                        IsDomainCritical.Add(task.Item1.HostName, true);                     
+                        MapUpdater.WriteToPrimeDnsMap(item1);
+                        IsDomainCritical.Add(item1.HostName, true);                     
                         //Console.WriteLine("Ending Dns Resolver {0}", task.Item1.HostName);
                     }
                     else
                     {
-                        PrimeDns.Log._LogInformation("Failure in adding New Domain to PrimeDNSMap " + task.Item1.HostName, Logger.Logger.ConstDomainsWatcher, null);
+                        PrimeDns.Log._LogInformation("Failure in adding New Domain to PrimeDNSMap " + item1.HostName, Logger.Logger.ConstDomainsWatcher, null);
                         try
                         {
-                            if (!DomainYetToBeAddedToMap[task.Item1.HostName])
-                                DomainYetToBeAddedToMap[task.Item1.HostName] = true;
+                            if (!DomainYetToBeAddedToMap[item1.HostName])
+                                DomainYetToBeAddedToMap[item1.HostName] = true;
                         }
                         catch (KeyNotFoundException)
                         {
-                            DomainYetToBeAddedToMap.Add(task.Item1.HostName, true);
+                            DomainYetToBeAddedToMap.Add(item1.HostName, true);
                         }
                     }
                 }
@@ -298,7 +301,7 @@
 
         private static async Task<Tuple<PrimeDnsMapRow, bool>> DoWorkAsync(PrimeDnsMapRow pMapRow, CancellationToken pToken)
         {
-            Tuple<PrimeDnsMapRow, bool> result = Tuple.Create(pMapRow, false);
+            var result = Tuple.Create(pMapRow, false);
             try
             {
                 result = await DnsResolver.DnsResolve(pMapRow, pToken);
