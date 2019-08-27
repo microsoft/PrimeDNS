@@ -1,9 +1,7 @@
-﻿// -----------------------------------------------------------------------
-// <copyright file="AssemblyInfo.cs" company="Microsoft">
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// Licensed under the MIT License.
-// </copyright>
-// -----------------------------------------------------------------------
+﻿/* -----------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License.
+ * ----------------------------------------------------------------------- */
 
 namespace PrimeDNS
 {
@@ -140,7 +138,7 @@ namespace PrimeDNS
                 {
                     TtlUpdaterErrorCount = 0;
                     await TtlUpdater.UpdateTtl(nextStartTimeOfTtlUpdater);
-                    nextStartTimeOfTtlUpdater += TimeSpan.FromSeconds(TimeToLiveUpdater.timeToLiveUpdaterFrequencyInSeconds);
+                    nextStartTimeOfTtlUpdater += TimeSpan.FromSeconds(TimeToLiveUpdater.TimeToLiveUpdaterFrequencyInSeconds);
                 }
                 if( (nextStartTimeOfWatcher <= nextStartTimeOfMapUpdater) && Config.IsDomainsUpdaterEnabled)
                 {

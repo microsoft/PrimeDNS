@@ -1,7 +1,12 @@
-﻿/*
+﻿/* -----------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License.
+ * ----------------------------------------------------------------------- */
+
+/*
  * Class that will do the DNS Resolving required by Map Updater.
  */
- namespace PrimeDNS.DNS
+namespace PrimeDNS.DNS
 {
     using DnsClient;
     using Map;
