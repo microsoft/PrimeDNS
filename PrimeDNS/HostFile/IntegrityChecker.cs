@@ -1,7 +1,11 @@
-﻿using System;
+﻿/* -----------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License.
+ * ----------------------------------------------------------------------- */
 
 namespace PrimeDNS.HostFile
 {
+    using System;
     using System.IO;
     using System.Text;
     using Helper;
@@ -48,12 +52,12 @@ namespace PrimeDNS.HostFile
                 var contents = sr.ReadToEnd();
                 if (contents.Contains(PrimeDns.Config.PrimeDnsSectionBeginString))
                 {
-                    PrimeDns.Log._LogWarning("###---PrimeDNS-BEGIN-SECTION present in file, inspite of PrimeDNSState stating otherwise!", Logger.CPrimeDnsStateIntegrity, null);
+                    PrimeDns.Log._LogWarning("###---PrimeDNS-BEGIN-SECTION present in file, in spite of PrimeDNSState stating otherwise!", Logger.CPrimeDnsStateIntegrity, null);
                     isPrimeDnsSectionPresent = true;
                 }
                 if (contents.Contains(PrimeDns.Config.PrimeDnsSectionEndString))
                 {
-                    PrimeDns.Log._LogWarning("###---PrimeDNS-END-SECTION present in file, inspite of PrimeDNSState stating otherwise!", Logger.CPrimeDnsStateIntegrity, null);
+                    PrimeDns.Log._LogWarning("###---PrimeDNS-END-SECTION present in file, in spite of PrimeDNSState stating otherwise!", Logger.CPrimeDnsStateIntegrity, null);
                     isPrimeDnsSectionPresent = true;
                 }
             }

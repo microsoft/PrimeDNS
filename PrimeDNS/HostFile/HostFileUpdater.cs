@@ -1,4 +1,9 @@
-﻿namespace PrimeDNS.HostFile
+﻿/* -----------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License.
+ * ----------------------------------------------------------------------- */
+
+namespace PrimeDNS.HostFile
 {
     using System;
     using System.IO;
@@ -12,15 +17,15 @@
     {
         internal int PrimeDnsBeginLine;
         internal int HostFileUpdaterFrequencyInSeconds;
-        private static string mapConnectionString;
-        private static string stateConnectionString;
-        private static StringBuilder stringBuilder;
+        private static string _mapConnectionString;
+        private static string _stateConnectionString;
+        private static StringBuilder _stringBuilder;
 
         public HostFileUpdater()
         {
             HostFileUpdaterFrequencyInSeconds = PrimeDns.Config.HostFileUpdaterFrequencyInSeconds;
-            mapConnectionString = PrimeDns.Config.MapConnectionString;
-            stateConnectionString = PrimeDns.Config.StateConnectionString;
+            _mapConnectionString = PrimeDns.Config.MapConnectionString;
+            _stateConnectionString = PrimeDns.Config.StateConnectionString;
         }
 
         /*
@@ -114,8 +119,8 @@
                 f.Close();
             }
             
-            int tries = 0;
-            bool flag = false;
+            var tries = 0;
+            var flag = false;
             while (tries < 3 && !flag)
             {
                 try
@@ -192,11 +197,11 @@
          */
         private static void MakePrimeDnsSectionCreatedTrue()
         {
-            var updateCommand = String.Format("UPDATE " + AppConfig.CTableNamePrimeDnsState + " SET FlagValue=1" +
-                    " WHERE FlagName=\"{0}\"", AppConfig.CPrimeDnsSectionCreated);         
+            var updateCommand = "UPDATE " + AppConfig.CTableNamePrimeDnsState + " SET FlagValue=1" +
+                                $" WHERE FlagName=\"{AppConfig.CPrimeDnsSectionCreated}\"";         
             try
             {
-                var numberOfRowsUpdated = SqliteConnect.ExecuteNonQuery(updateCommand, stateConnectionString);
+                var numberOfRowsUpdated = SqliteConnect.ExecuteNonQuery(updateCommand, _stateConnectionString);
                 PrimeDns.Log._LogInformation("PrimeDNSState table updated - # of rows updated - " + numberOfRowsUpdated, Logger.CSqliteExecuteNonQuery, null);
             }
             catch (Exception error)
@@ -213,16 +218,16 @@
         {
             PrimeDns.Semaphore.Wait();
             string entries;
-            stringBuilder =  new StringBuilder("");
-            var selectCommand = String.Format("Select * from " + AppConfig.CTableNamePrimeDnsMap +
-                    " WHERE TimeToLiveInSeconds > {0}", PrimeDns.Config.TimeToLiveThresholdInSeconds);
+            _stringBuilder =  new StringBuilder("");
+            var selectCommand = "Select * from " + AppConfig.CTableNamePrimeDnsMap +
+                                $" WHERE TimeToLiveInSeconds > {PrimeDns.Config.TimeToLiveThresholdInSeconds}";
             try
             {
-                using (var Connection = new SqliteConnection(mapConnectionString))
+                using (var connection = new SqliteConnection(_mapConnectionString))
                 {
-                    Connection.Open();
+                    connection.Open();
 
-                    using (var c = new SqliteCommand(selectCommand, Connection))
+                    using (var c = new SqliteCommand(selectCommand, connection))
                     {
                         using (var query = c.ExecuteReader())
                         {
@@ -232,11 +237,9 @@
                                 var hostName = query.GetString(0);
                                 foreach (var ipAddress in ipAddresses)
                                 {
-                                    if (IpHelper.IsIpAddressValid(ipAddress))
-                                    {
-                                        entries = (ipAddress + "\t" + hostName + "\n");
-                                        stringBuilder.Append(entries);
-                                    }
+                                    if (!IpHelper.IsIpAddressValid(ipAddress)) continue;
+                                    entries = (ipAddress + "\t" + hostName + "\n");
+                                    _stringBuilder.Append(entries);
                                 }
                             }
                         }
@@ -248,8 +251,8 @@
             {
                 PrimeDns.Log._LogError("Error occured while pulling data from PrimeDNSMap table", Logger.CSqliteExecuteNonQuery, error);
             }
-            entries = stringBuilder.ToString();
-            stringBuilder.Clear();
+            entries = _stringBuilder.ToString();
+            _stringBuilder.Clear();
             PrimeDns.Semaphore.Release();
             return entries;
         }
