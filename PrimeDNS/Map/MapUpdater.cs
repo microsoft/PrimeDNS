@@ -47,7 +47,7 @@ namespace PrimeDNS.Map
         {
             PrimeDns.Log._LogInformation("Map Updater Started at Time : " + time.ToString(), Logger.ConstStartUp, null);
             Telemetry.Telemetry.PushStatusOfThread("MapUpdater", "Started");
-            if (!SqliteConnect.CheckPrimeDNSState(AppConfig.CPrimeDnsMapCreated))
+            if (!SqliteConnect.CheckPrimeDnsState(AppConfig.CPrimeDnsMapCreated))
             {
                 CreatePrimeDnsMap().Wait();
             }

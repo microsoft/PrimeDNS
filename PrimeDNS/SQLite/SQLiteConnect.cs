@@ -1,9 +1,13 @@
-﻿namespace PrimeDNS.SQLite
+﻿/* -----------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License.
+ * ----------------------------------------------------------------------- */
+
+namespace PrimeDNS.SQLite
 {
     using System;
     using Microsoft.Data.Sqlite;
     using Logger;
-    using System.Threading;
 
     internal class SqliteConnect
     {
@@ -15,10 +19,10 @@
         {
             SqliteDataReader query = null;
 
-            using (var Connection = new SqliteConnection(pConnectionString))
+            using (var connection = new SqliteConnection(pConnectionString))
             {
-                Connection.Open();
-                var selectCommand = new SqliteCommand("Select name FROM sqlite_master WHERE type = 'table' AND name = @tableName", Connection);
+                connection.Open();
+                var selectCommand = new SqliteCommand("Select name FROM sqlite_master WHERE type = 'table' AND name = @tableName", connection);
                 selectCommand.Parameters.AddWithValue("@tableName", pTableName);
               
                 try
@@ -31,7 +35,7 @@
                     PrimeDns.Log._LogInformation("Error occured while querying  table existence.", Logger.ConstSqliteExecuteReader, error);
                     PrimeDns.Log._LogError("Error occured while querying  table existence.", Logger.ConstSqliteExecuteReader, error);
                 }
-                Connection.Close();
+                connection.Close();
                 GC.Collect();
                 GC.WaitForPendingFinalizers();
             }
@@ -47,10 +51,10 @@
          */
         public static void DropTable(string pTableName, string pConnectionString)
         {
-            using (var Connection = new SqliteConnection(pConnectionString))
+            using (var connection = new SqliteConnection(pConnectionString))
             {
-                Connection.Open();
-                var dropCommand = new SqliteCommand("Drop table if exists " + pTableName, Connection);
+                connection.Open();
+                var dropCommand = new SqliteCommand("Drop table if exists " + pTableName, connection);
                 try
                 {
                     dropCommand.ExecuteNonQuery();
@@ -61,7 +65,7 @@
                     PrimeDns.Log._LogInformation("Error occured while dropping table.", Logger.ConstSqliteExecuteNonQuery, error);
                     PrimeDns.Log._LogError("Error occured while dropping table.", Logger.ConstSqliteExecuteNonQuery, error);
                 }
-                Connection.Close();
+                connection.Close();
                 GC.Collect();
                 GC.WaitForPendingFinalizers();
             }          
@@ -72,10 +76,10 @@
          */
         public static void DeleteTable(string pTableName, string pConnectionString)
         {
-            using (var Connection = new SqliteConnection(pConnectionString))
+            using (var connection = new SqliteConnection(pConnectionString))
             {
-                Connection.Open();
-                var dropCommand = new SqliteCommand("Delete from " + pTableName, Connection);
+                connection.Open();
+                var dropCommand = new SqliteCommand("Delete from " + pTableName, connection);
                 try
                 {
                     dropCommand.ExecuteNonQuery();
@@ -86,23 +90,23 @@
                     PrimeDns.Log._LogInformation("Error occured while deleting entries from table.", Logger.ConstSqliteExecuteNonQuery, error);
                     PrimeDns.Log._LogError("Error occured while deleting entries from table.", Logger.ConstSqliteExecuteNonQuery, error);
                 }
-                Connection.Close();
+                connection.Close();
                 GC.Collect();
                 GC.WaitForPendingFinalizers();
             }         
         }
 
-        public static bool CheckPrimeDNSState(string pState)
+        public static bool CheckPrimeDnsState(string pState)
         {
             var flagToReturn = false;
-            var selectCommand = String.Format("select * from " + AppConfig.CTableNamePrimeDnsState);
+            var selectCommand = "select * from " + AppConfig.CTableNamePrimeDnsState;
             try
             {
-                using(var Connection = new SqliteConnection(PrimeDns.Config.StateConnectionString))
+                using(var connection = new SqliteConnection(PrimeDns.Config.StateConnectionString))
                 {
-                    Connection.Open();
+                    connection.Open();
 
-                    using (var c = new SqliteCommand(selectCommand, Connection))
+                    using (var c = new SqliteCommand(selectCommand, connection))
                     {
                         using (var query = c.ExecuteReader())
                         {
@@ -129,15 +133,13 @@
 
         public static int ExecuteNonQuery(string pCommand, string pConnectionString)
         {
-            int query = 0;
-            bool flag = false;
-            //PrimeDns.semaphore.Wait();
-            using (var Connection = new SqliteConnection(pConnectionString))
+            var query = 0;
+            using (var connection = new SqliteConnection(pConnectionString))
             {
-                Connection.Open();
+                connection.Open();
                 try
                 {
-                    using(var c = new SqliteCommand(pCommand, Connection))
+                    using(var c = new SqliteCommand(pCommand, connection))
                     {                        
                         query = c.ExecuteNonQuery();                       
                     }
@@ -145,25 +147,13 @@
                 }
                 catch (SqliteException e)
                 {
-                    //PrimeDns.semaphore.Release();
-                    if (e.Message.Contains("database is locked"))
-                    {
-                        flag = true;
-                    }
                     PrimeDns.Log._LogError("SQlite Execute Non Query Error\n" + pCommand + "\n" + pConnectionString + "****\n", Logger.ConstSqliteExecuteNonQuery, e);
                 }
-                Connection.Close();
+                connection.Close();
                 GC.Collect();
                 GC.WaitForPendingFinalizers();
             }
 
-            if (flag)
-            {
-                //CleanUp.Clean();
-                //CleanUp.CreateMap();
-                //Thread.Sleep(100);
-            }
-            //PrimeDns.semaphore.Release();
             return query;
         }
     }

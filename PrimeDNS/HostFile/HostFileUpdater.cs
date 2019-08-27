@@ -44,7 +44,7 @@ namespace PrimeDNS.HostFile
             
             PrimeDns.Log._LogInformation("Host File Updater Started at Time : " + time.ToString(), Logger.ConstStartUp, null);
             Telemetry.Telemetry.PushStatusOfThread("HostFileUpdater", "Started");
-            if (!SqliteConnect.CheckPrimeDNSState(AppConfig.CPrimeDnsSectionCreated))
+            if (!SqliteConnect.CheckPrimeDnsState(AppConfig.CPrimeDnsSectionCreated))
             {
                 CreatePrimeDnsSection();
                 MakePrimeDnsSectionCreatedTrue();
