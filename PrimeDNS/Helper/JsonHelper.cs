@@ -1,4 +1,9 @@
-﻿namespace PrimeDNS.Helper
+﻿/* -----------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License.
+ * ----------------------------------------------------------------------- */
+
+namespace PrimeDNS.Helper
 {
     using Newtonsoft.Json.Linq;
     using System.Linq;
