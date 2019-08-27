@@ -40,7 +40,7 @@
          */
         internal static void UpdateMap(DateTimeOffset time)
         {
-            PrimeDns.Log._LogInformation("Map Updater Started at Time : " + time.ToString(), Logger.CStartUp, null);
+            PrimeDns.Log._LogInformation("Map Updater Started at Time : " + time.ToString(), Logger.ConstStartUp, null);
             Telemetry.Telemetry.PushStatusOfThread("MapUpdater", "Started");
             if (!SqliteConnect.CheckPrimeDNSState(AppConfig.CPrimeDnsMapCreated))
             {
@@ -62,7 +62,7 @@
                 t[0].Wait();
             }
             Telemetry.Telemetry.PushStatusOfThread("MapUpdater", "Ended");
-            PrimeDns.Log._LogInformation("Map Updater Exited at Time : " + time.ToString(), Logger.CStartUp, null);
+            PrimeDns.Log._LogInformation("Map Updater Exited at Time : " + time.ToString(), Logger.ConstStartUp, null);
         }
 
         /*
@@ -74,7 +74,7 @@
             var isPrimeDnsMapPresent = SqliteConnect.IsTablePresent(AppConfig.CTableNamePrimeDnsMap, mapConnectionString);
             if (isPrimeDnsMapPresent)
             {
-                PrimeDns.Log._LogWarning("PrimeDNSMap Table present in DB, dropping it and creating again.", Logger.CPrimeDnsStateIntegrity, null);
+                PrimeDns.Log._LogWarning("PrimeDNSMap Table present in DB, dropping it and creating again.", Logger.ConstPrimeDnsStateIntegrity, null);
                 SqliteConnect.DropTable(AppConfig.CTableNamePrimeDnsMap, mapConnectionString);
             }
             CreateTable_PrimeDNSMap();
@@ -97,7 +97,7 @@
                 }
                 else
                 {
-                    PrimeDns.Log._LogWarning("Invalid Domain Name - " + domain + " Found in File!", Logger.CDomainsWatcher, null);
+                    PrimeDns.Log._LogWarning("Invalid Domain Name - " + domain + " Found in File!", Logger.ConstDomainsWatcher, null);
                     Telemetry.Telemetry.PushDnsCallsData(domain, "Failure", "InvalidDomain", 0, 0, "INVALID-DOMAIN");
                 }
                 if(tasks.Count >= PrimeDns.Config.ParallelDnsCallsLimit)
@@ -111,7 +111,7 @@
                         }
                         else
                         {
-                            PrimeDns.Log._LogInformation("Failure in adding New Domain to PrimeDNSMap " + task.Item1.HostName, Logger.CDomainsWatcher, null);
+                            PrimeDns.Log._LogInformation("Failure in adding New Domain to PrimeDNSMap " + task.Item1.HostName, Logger.ConstDomainsWatcher, null);
                             try
                             {
                                 if (!PrimeDns.DomainsConfig.DomainYetToBeAddedToMap[task.Item1.HostName])
@@ -138,7 +138,7 @@
                     }
                     else
                     {
-                        PrimeDns.Log._LogInformation("Failure in adding New Domain to PrimeDNSMap " + task.Item1.HostName, Logger.CDomainsWatcher, null);
+                        PrimeDns.Log._LogInformation("Failure in adding New Domain to PrimeDNSMap " + task.Item1.HostName, Logger.ConstDomainsWatcher, null);
                         try
                         {
                             if (!PrimeDns.DomainsConfig.DomainYetToBeAddedToMap[task.Item1.HostName])
@@ -153,7 +153,7 @@
                 tasks.Clear();
             }
             
-            PrimeDns.Log._LogInformation("WriteToPrimeDNSMap Successful", Logger.CSqliteExecuteNonQuery, null);
+            PrimeDns.Log._LogInformation("WriteToPrimeDNSMap Successful", Logger.ConstSqliteExecuteNonQuery, null);
         }
 
         /*
@@ -165,11 +165,11 @@
             try
             {
                 var query = SqliteConnect.ExecuteNonQuery(createCommand, mapConnectionString);
-                PrimeDns.Log._LogInformation("Table PrimeDnsMap created successfully", Logger.CSqliteExecuteNonQuery, null);
+                PrimeDns.Log._LogInformation("Table PrimeDnsMap created successfully", Logger.ConstSqliteExecuteNonQuery, null);
             }
             catch (Exception error)
             {              
-                PrimeDns.Log._LogError("Error occured while creating table PrimeDNSMap.", Logger.CSqliteExecuteNonQuery, error);
+                PrimeDns.Log._LogError("Error occured while creating table PrimeDNSMap.", Logger.ConstSqliteExecuteNonQuery, error);
             }
             
         }
@@ -183,11 +183,11 @@
             try
             {
                 var query = SqliteConnect.ExecuteNonQuery(createCommand, stateConnectionString);
-                PrimeDns.Log._LogInformation("Table PrimeDNSState created successfully", Logger.CSqliteExecuteNonQuery, null);
+                PrimeDns.Log._LogInformation("Table PrimeDNSState created successfully", Logger.ConstSqliteExecuteNonQuery, null);
             }
             catch (Exception error)
             {               
-                PrimeDns.Log._LogError("Error occured while creating table PrimeDNSState.", Logger.CSqliteExecuteNonQuery, error);
+                PrimeDns.Log._LogError("Error occured while creating table PrimeDNSState.", Logger.ConstSqliteExecuteNonQuery, error);
             }
         }
 
@@ -206,7 +206,7 @@
             }
             catch (Exception error)
             {                 
-                PrimeDns.Log._LogError("Error occured while inserting data into PrimeDNSMap table", Logger.CSqliteExecuteNonQuery, error);
+                PrimeDns.Log._LogError("Error occured while inserting data into PrimeDNSMap table", Logger.ConstSqliteExecuteNonQuery, error);
             }
             PrimeDns.Semaphore.Release();
         }
@@ -221,11 +221,11 @@
             try
             {
                 var numberOfRowsUpdated = SqliteConnect.ExecuteNonQuery(updateCommand, stateConnectionString);
-                PrimeDns.Log._LogInformation("PrimeDNSState table updated - # of rows updated - " + numberOfRowsUpdated, Logger.CSqliteExecuteNonQuery, null);
+                PrimeDns.Log._LogInformation("PrimeDNSState table updated - # of rows updated - " + numberOfRowsUpdated, Logger.ConstSqliteExecuteNonQuery, null);
             }
             catch (Exception error)
             {               
-                PrimeDns.Log._LogError("Error occured while updating PrimeDNSState table on Database", Logger.CSqliteExecuteNonQuery, error);
+                PrimeDns.Log._LogError("Error occured while updating PrimeDNSState table on Database", Logger.ConstSqliteExecuteNonQuery, error);
             }
         }
 
@@ -239,33 +239,33 @@
             try
             {
                 SqliteConnect.ExecuteNonQuery(insertCommand, stateConnectionString);
-                PrimeDns.Log._LogInformation("Successfully Initialized PrimeDNSSectionCreated as False in the PrimeDNSState", Logger.CPrimeDnsStateIntegrity, null);
+                PrimeDns.Log._LogInformation("Successfully Initialized PrimeDNSSectionCreated as False in the PrimeDNSState", Logger.ConstPrimeDnsStateIntegrity, null);
             }
             catch (Exception error)
             {               
-                PrimeDns.Log._LogError("Error occured while Initializing PrimeDNSSectionCreated as False in the PrimeDNSState", Logger.CPrimeDnsStateIntegrity, error);
+                PrimeDns.Log._LogError("Error occured while Initializing PrimeDNSSectionCreated as False in the PrimeDNSState", Logger.ConstPrimeDnsStateIntegrity, error);
             }
 
             insertCommand = String.Format("Insert into " + AppConfig.CTableNamePrimeDnsState + " values (\"{0}\", {1})", AppConfig.CPrimeDnsMapCreated, pMapCreatedFlag);
             try
             {
                 SqliteConnect.ExecuteNonQuery(insertCommand, stateConnectionString);
-                PrimeDns.Log._LogInformation("Successfully Initialized PrimeDNSMapCreated as False in the PrimeDNSState", Logger.CPrimeDnsStateIntegrity, null);
+                PrimeDns.Log._LogInformation("Successfully Initialized PrimeDNSMapCreated as False in the PrimeDNSState", Logger.ConstPrimeDnsStateIntegrity, null);
             }
             catch (Exception error)
             {               
-                PrimeDns.Log._LogError("Error occured while Initializing PrimeDNSMapCreated as False in the PrimeDNSState", Logger.CPrimeDnsStateIntegrity, error);
+                PrimeDns.Log._LogError("Error occured while Initializing PrimeDNSMapCreated as False in the PrimeDNSState", Logger.ConstPrimeDnsStateIntegrity, error);
             }
 
             insertCommand = String.Format("Insert into " + AppConfig.CTableNamePrimeDnsState + " values (\"{0}\", {1})", AppConfig.CPrimeDnsCriticalDomainsUpdated, pCriticalDomainsUpdatedFlag);
             try
             {
                 SqliteConnect.ExecuteNonQuery(insertCommand, stateConnectionString);
-                PrimeDns.Log._LogInformation("Successfully Initialized PrimeDNSCriticalDomainsUpdated as False in the PrimeDNSState", Logger.CPrimeDnsStateIntegrity, null);
+                PrimeDns.Log._LogInformation("Successfully Initialized PrimeDNSCriticalDomainsUpdated as False in the PrimeDNSState", Logger.ConstPrimeDnsStateIntegrity, null);
             }
             catch (Exception error)
             {              
-                PrimeDns.Log._LogError("Error occured while Initializing PrimeDNSCriticalDomainsUpdated as False in the PrimeDNSState", Logger.CPrimeDnsStateIntegrity, error);
+                PrimeDns.Log._LogError("Error occured while Initializing PrimeDNSCriticalDomainsUpdated as False in the PrimeDNSState", Logger.ConstPrimeDnsStateIntegrity, error);
 
             }
         }
@@ -278,7 +278,7 @@
          */
         private static async Task UpdatePrimeDnsMap()
         {
-            PrimeDns.Log._LogInformation("UpdatePrimeDNSMap Started", Logger.CStartUp, null);
+            PrimeDns.Log._LogInformation("UpdatePrimeDNSMap Started", Logger.ConstStartUp, null);
 
             string  selectCommand = String.Format("Select * from " + AppConfig.CTableNamePrimeDnsMap);
             var tasks = new List<Task<Tuple<PrimeDnsMapRow, bool>>>();
@@ -317,17 +317,17 @@
                                 }
                                 if (!DomainsConfig.IsDomainNameValid(hostName))
                                 {
-                                    PrimeDns.Log._LogWarning("Invalid Domain Name Found in Map!", Logger.CDomainsWatcher, null);
+                                    PrimeDns.Log._LogWarning("Invalid Domain Name Found in Map!", Logger.ConstDomainsWatcher, null);
                                     hostNamesToBeDeleted.Add(hostName);
                                 }
                                 if (!isHostNameCritical)
                                 {
-                                    PrimeDns.Log._LogInformation("Dictionary having a FALSE entry!!!!? " + hostName, Logger.CDomainsWatcher, null);
+                                    PrimeDns.Log._LogInformation("Dictionary having a FALSE entry!!!!? " + hostName, Logger.ConstDomainsWatcher, null);
                                 }
                             }
                             catch (KeyNotFoundException)
                             {
-                                PrimeDns.Log._LogInformation("Removed the old Domain from PrimeDNSMap " + hostName, Logger.CDomainsWatcher, null);
+                                PrimeDns.Log._LogInformation("Removed the old Domain from PrimeDNSMap " + hostName, Logger.ConstDomainsWatcher, null);
                                 hostNamesToBeDeleted.Add(hostName);
                             }
                         }
@@ -378,7 +378,7 @@
                 }
                 hostNamesToBeDeleted.Clear();
             }
-            PrimeDns.Log._LogInformation("Updated PrimeDNSMap table successfully", Logger.CSqliteExecuteNonQuery, null);
+            PrimeDns.Log._LogInformation("Updated PrimeDNSMap table successfully", Logger.ConstSqliteExecuteNonQuery, null);
 
         }
 
@@ -397,7 +397,7 @@
             }
             catch (Exception error)
             {               
-                PrimeDns.Log._LogError("Error occured while updating PrimeDNSMap table", Logger.CSqliteExecuteNonQuery, error);
+                PrimeDns.Log._LogError("Error occured while updating PrimeDNSMap table", Logger.ConstSqliteExecuteNonQuery, error);
             }
             PrimeDns.Semaphore.Release();
         }
@@ -417,7 +417,7 @@
             }
             catch (Exception error)
             {
-                PrimeDns.Log._LogError("Error occured while updating PrimeDNSMap table for Last Checked Time", Logger.CSqliteExecuteNonQuery, error);
+                PrimeDns.Log._LogError("Error occured while updating PrimeDNSMap table for Last Checked Time", Logger.ConstSqliteExecuteNonQuery, error);
             }
             PrimeDns.Semaphore.Release();
         }
@@ -436,7 +436,7 @@
             }
             catch (Exception error)
             {               
-                PrimeDns.Log._LogError("Error occured while deleting row from PrimeDNSMap table", Logger.CSqliteExecuteNonQuery, error);
+                PrimeDns.Log._LogError("Error occured while deleting row from PrimeDNSMap table", Logger.ConstSqliteExecuteNonQuery, error);
             }
             PrimeDns.Semaphore.Release();
         }       
@@ -450,7 +450,7 @@
             }
             catch(Exception e)
             {
-                PrimeDns.Log._LogError("DoWorkAsync in Map Updater caused EXCEPTION!", Logger.CDnsResolver, e);
+                PrimeDns.Log._LogError("DoWorkAsync in Map Updater caused EXCEPTION!", Logger.ConstDnsResolver, e);
             }
             return result;
         }

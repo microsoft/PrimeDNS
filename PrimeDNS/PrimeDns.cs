@@ -47,7 +47,7 @@ namespace PrimeDNS
 
             if (primeDns._dataExists != 1)
             {
-                Log._LogInformation("********* PRIMEDNS CLOSES DUE TO LACK OF DATA *********", Logger.Logger.CStartUp, null);
+                Log._LogInformation("********* PRIMEDNS CLOSES DUE TO LACK OF DATA *********", Logger.Logger.ConstStartUp, null);
             }
             else
             {
@@ -55,7 +55,7 @@ namespace PrimeDNS
 
                 if (Config.IsPrimeDnsEnabled)
                 {
-                    Log._LogInformation("********* PRIMEDNS STARTS *********", Logger.Logger.CStartUp, null);
+                    Log._LogInformation("********* PRIMEDNS STARTS *********", Logger.Logger.ConstStartUp, null);
 
                     MapUpdater = new Map.MapUpdater();
                     HostFileUpdater = new HostFile.HostFileUpdater();
@@ -77,13 +77,13 @@ namespace PrimeDNS
                     }
                     catch (Exception e)
                     {
-                        Log._LogError("********* PRIMEDNS CRASHES WITH ERROR!!!! *********", Logger.Logger.CStartUp, e);
+                        Log._LogError("********* PRIMEDNS CRASHES WITH ERROR!!!! *********", Logger.Logger.ConstStartUp, e);
                         //CleanUp.Clean();
                     }
                 }
                 else
                 {
-                    Log._LogInformation("********* PRIMEDNS IS NOT ENABLED *********", Logger.Logger.CStartUp, null);
+                    Log._LogInformation("********* PRIMEDNS IS NOT ENABLED *********", Logger.Logger.ConstStartUp, null);
                 }
             }
              
@@ -97,7 +97,7 @@ namespace PrimeDNS
             }
             catch (AggregateException ae)
             {
-                Log._LogError("Exception occured while running Map Updater as async task - ",Logger.Logger.CTaskException,ae);
+                Log._LogError("Exception occured while running Map Updater as async task - ",Logger.Logger.ConstTaskException,ae);
             }
             try
             {
@@ -105,7 +105,7 @@ namespace PrimeDNS
             }
             catch (AggregateException ae)
             {
-                Log._LogError("Exception occured while running HostFile Updater as async task - ", Logger.Logger.CTaskException, ae);
+                Log._LogError("Exception occured while running HostFile Updater as async task - ", Logger.Logger.ConstTaskException, ae);
             }
         }
 
@@ -125,9 +125,9 @@ namespace PrimeDNS
                 var cpuUsage = Helper.CpuPerformance.GetCurrentCpuUsage();
                 var ramUsage = Helper.CpuPerformance.GetRamUsage();
 
-                Log._LogInformation("CPU Utilization of PrimeDNS is - " + cpuUsage, Logger.Logger.CStartUp, null);
+                Log._LogInformation("CPU Utilization of PrimeDNS is - " + cpuUsage, Logger.Logger.ConstStartUp, null);
                 Telemetry.Telemetry.PushCPUData(cpuUsage);
-                Log._LogInformation("RAM Usage of PrimeDNS is - " + ramUsage, Logger.Logger.CStartUp, null);
+                Log._LogInformation("RAM Usage of PrimeDNS is - " + ramUsage, Logger.Logger.ConstStartUp, null);
                 Telemetry.Telemetry.PushRAMData(ramUsage);
 
                 nextStartTimeOfMapUpdater += TimeSpan.FromSeconds(MapUpdater.MapUpdaterFrequencyInSeconds);

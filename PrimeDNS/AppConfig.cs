@@ -55,7 +55,7 @@
         {
             if (PrimeDns.PrimeDnsDataHome == null)
             {
-                PrimeDns.Log._LogInformation("PrimeDnsDataHome == null : Data Folder hasn't been entered, so using current folder as default", Logger.Logger.CStartUp, null);
+                PrimeDns.Log._LogInformation("PrimeDnsDataHome == null : Data Folder hasn't been entered, so using current folder as default", Logger.Logger.ConstStartUp, null);
                 PrimeDns.PrimeDnsDataHome = Directory.GetCurrentDirectory();
             }
             if (!Directory.Exists(PrimeDns.PrimeDnsDataHome))
@@ -115,13 +115,13 @@
 
         internal void CallAppConfigWatcher(DateTimeOffset time)
         {
-            PrimeDns.Log._LogInformation("AppConfig Watcher Started at Time : " + time.ToString(), Logger.Logger.CStartUp, null);
+            PrimeDns.Log._LogInformation("AppConfig Watcher Started at Time : " + time.ToString(), Logger.Logger.ConstStartUp, null);
             Telemetry.Telemetry.PushStatusOfThread("AppConfigWatcher", "Started");
             PrimeDns.Config.GetConfig();
             PrimeDns.HostFileUpdater.HostFileConfigUpdater();
             PrimeDns.MapUpdater.MapConfigUpdater();
             Telemetry.Telemetry.PushStatusOfThread("AppConfigWatcher", "Ended");
-            PrimeDns.Log._LogInformation("AppConfig Watcher Exited at Time : " + time.ToString(), Logger.Logger.CStartUp, null);
+            PrimeDns.Log._LogInformation("AppConfig Watcher Exited at Time : " + time.ToString(), Logger.Logger.ConstStartUp, null);
 
         }
 
@@ -130,7 +130,7 @@
          */
         public void ConfigChangeHandler(object source, FileSystemEventArgs e)
         {
-            PrimeDns.Log._LogInformation("CHANGE DETECTED IN APP CONFIG FILE!!!", Logger.Logger.CconfigWatcher, null);
+            PrimeDns.Log._LogInformation("CHANGE DETECTED IN APP CONFIG FILE!!!", Logger.Logger.ConstConfigWatcher, null);
             PrimeDns.Config.GetConfig();
             PrimeDns.HostFileUpdater.HostFileConfigUpdater();
             PrimeDns.MapUpdater.MapConfigUpdater();

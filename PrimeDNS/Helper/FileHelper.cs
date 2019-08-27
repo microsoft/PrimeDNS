@@ -50,7 +50,7 @@ namespace PrimeDNS.Helper
                 }
                 catch (AggregateException ae)
                 {
-                    PrimeDns.Log._LogError("Exception occured while inserting into Hosts file - ", Logger.Logger.CHostFileIntegrity, ae);
+                    PrimeDns.Log._LogError("Exception occured while inserting into Hosts file - ", Logger.Logger.ConstHostFileIntegrity, ae);
                     tries++;
                 }
             }            

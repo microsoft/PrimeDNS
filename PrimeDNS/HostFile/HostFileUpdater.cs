@@ -42,7 +42,7 @@ namespace PrimeDNS.HostFile
         internal void UpdateHostfile(DateTimeOffset time)
         {
             
-            PrimeDns.Log._LogInformation("Host File Updater Started at Time : " + time.ToString(), Logger.CStartUp, null);
+            PrimeDns.Log._LogInformation("Host File Updater Started at Time : " + time.ToString(), Logger.ConstStartUp, null);
             Telemetry.Telemetry.PushStatusOfThread("HostFileUpdater", "Started");
             if (!SqliteConnect.CheckPrimeDNSState(AppConfig.CPrimeDnsSectionCreated))
             {
@@ -63,7 +63,7 @@ namespace PrimeDNS.HostFile
                 }
                 catch(IOException ioe)
                 {
-                    PrimeDns.Log._LogError("Aggregate Exception occured while updating Hostfile - ", Logger.CHostFileIntegrity, ioe);
+                    PrimeDns.Log._LogError("Aggregate Exception occured while updating Hostfile - ", Logger.ConstHostFileIntegrity, ioe);
                     Telemetry.Telemetry.PushStatusOfThread("HostFileUpdater", "Failed");
                 }                     
             }
@@ -72,10 +72,10 @@ namespace PrimeDNS.HostFile
                 FileHelper.RemoveLineFromFile(PrimeDns.Config.HostFilePath, PrimeDns.Config.PrimeDnsSectionBeginString);
                 FileHelper.RemoveLineFromFile(PrimeDns.Config.HostFilePath, PrimeDns.Config.PrimeDnsSectionEndString);
                 CreatePrimeDnsSection();
-                PrimeDns.Log._LogWarning("CheckPrimeDnsSectionIntegrity FAILED!!, Continuing..",Logger.CHostFileIntegrity,null);
+                PrimeDns.Log._LogWarning("CheckPrimeDnsSectionIntegrity FAILED!!, Continuing..",Logger.ConstHostFileIntegrity,null);
             }
             Telemetry.Telemetry.PushStatusOfThread("HostFileUpdater", "Ended");
-            PrimeDns.Log._LogInformation("Host File Updater Ended at Time : " + time.ToString(), Logger.CStartUp, null);
+            PrimeDns.Log._LogInformation("Host File Updater Ended at Time : " + time.ToString(), Logger.ConstStartUp, null);
 
             GC.Collect();
             GC.WaitForPendingFinalizers();
@@ -132,7 +132,7 @@ namespace PrimeDNS.HostFile
                 }
                 catch (AggregateException ae)
                 {
-                    PrimeDns.Log._LogError("Exception occured while inserting into Hostfile - ", Logger.CHostFileIntegrity, ae);
+                    PrimeDns.Log._LogError("Exception occured while inserting into Hostfile - ", Logger.ConstHostFileIntegrity, ae);
                     tries++;
                 }
             }
@@ -168,7 +168,7 @@ namespace PrimeDNS.HostFile
                 }
                 catch (AggregateException ae)
                 {
-                    PrimeDns.Log._LogError("Exception occured while Finding PrimeDns Section Begin String in File - ", Logger.CHostFileIntegrity, ae);
+                    PrimeDns.Log._LogError("Exception occured while Finding PrimeDns Section Begin String in File - ", Logger.ConstHostFileIntegrity, ae);
                     tries++;
                 }
             }
@@ -202,11 +202,11 @@ namespace PrimeDNS.HostFile
             try
             {
                 var numberOfRowsUpdated = SqliteConnect.ExecuteNonQuery(updateCommand, _stateConnectionString);
-                PrimeDns.Log._LogInformation("PrimeDNSState table updated - # of rows updated - " + numberOfRowsUpdated, Logger.CSqliteExecuteNonQuery, null);
+                PrimeDns.Log._LogInformation("PrimeDNSState table updated - # of rows updated - " + numberOfRowsUpdated, Logger.ConstSqliteExecuteNonQuery, null);
             }
             catch (Exception error)
             {               
-                PrimeDns.Log._LogError("Error occured while updating PrimeDNSState table on Database", Logger.CSqliteExecuteNonQuery, error);
+                PrimeDns.Log._LogError("Error occured while updating PrimeDNSState table on Database", Logger.ConstSqliteExecuteNonQuery, error);
             }
         }
 
@@ -245,11 +245,11 @@ namespace PrimeDNS.HostFile
                         }
                     }
                 }
-                PrimeDns.Log._LogInformation("Data pulled from PrimeDNSMap table successfully", Logger.CSqliteExecuteReader, null);
+                PrimeDns.Log._LogInformation("Data pulled from PrimeDNSMap table successfully", Logger.ConstSqliteExecuteReader, null);
             }
             catch (Exception error)
             {
-                PrimeDns.Log._LogError("Error occured while pulling data from PrimeDNSMap table", Logger.CSqliteExecuteNonQuery, error);
+                PrimeDns.Log._LogError("Error occured while pulling data from PrimeDNSMap table", Logger.ConstSqliteExecuteNonQuery, error);
             }
             entries = _stringBuilder.ToString();
             _stringBuilder.Clear();

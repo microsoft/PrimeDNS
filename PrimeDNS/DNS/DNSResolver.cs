@@ -72,7 +72,7 @@ namespace PrimeDNS.DNS
                 }
                 else
                 {
-                    PrimeDns.Log._LogError("Dns Resolver Failed for domain - " + pMapRow.HostName +  "With Error " + result.Header.ResponseCode.ToString(), Logger.Logger.CDnsResolver, null);
+                    PrimeDns.Log._LogError("Dns Resolver Failed for domain - " + pMapRow.HostName +  "With Error " + result.Header.ResponseCode.ToString(), Logger.Logger.ConstDnsResolver, null);
                     Telemetry.Telemetry.PushDnsCallsData(pMapRow.HostName, "Success", "DnsResolver", newlyAddedIpAddressCount, removedIpAddressCount, result.Header.ResponseCode.ToString());
                     //PrimeDns.Log._LogInformation("Dns Resolver successful for domain with a non NoError Response Code - " + pMapRow.HostName, Logger.Logger.CDnsResolver, null);
                 }
@@ -80,7 +80,7 @@ namespace PrimeDNS.DNS
             }
             catch(Exception e)
             {
-                PrimeDns.Log._LogError("Dns Resolver Failed for domain - " + pMapRow.HostName, Logger.Logger.CDnsResolver, e);
+                PrimeDns.Log._LogError("Dns Resolver Failed for domain - " + pMapRow.HostName, Logger.Logger.ConstDnsResolver, e);
                 Telemetry.Telemetry.PushDnsCallsData(pMapRow.HostName, "Failure","DnsResolver", newlyAddedIpAddressCount, removedIpAddressCount, e.Message);
             }
             if (newlyAddedIpAddressCount + removedIpAddressCount > 0)

@@ -61,7 +61,7 @@ namespace PrimeDNS.DNS
             }
             catch (Exception e)
             {
-                PrimeDns.Log._LogError("Error occured while Ttl resolution for Domain - " + pMapRow.HostName, Logger.Logger.CDnsResolver, e);
+                PrimeDns.Log._LogError("Error occured while Ttl resolution for Domain - " + pMapRow.HostName, Logger.Logger.ConstDnsResolver, e);
                 Telemetry.Telemetry.PushDnsCallsData(pMapRow.HostName, "Failure", "TtlResolver", 0, 0, e.Message);
                 return Tuple.Create(pMapRow, false);
             }

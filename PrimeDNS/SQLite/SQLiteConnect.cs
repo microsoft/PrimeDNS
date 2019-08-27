@@ -24,12 +24,12 @@
                 try
                 {
                     query = selectCommand.ExecuteReader();
-                    PrimeDns.Log._LogInformation("Table existence queried successfully", Logger.CSqliteExecuteReader, null);
+                    PrimeDns.Log._LogInformation("Table existence queried successfully", Logger.ConstSqliteExecuteReader, null);
                 }
                 catch (SqliteException error)
                 {
-                    PrimeDns.Log._LogInformation("Error occured while querying  table existence.", Logger.CSqliteExecuteReader, error);
-                    PrimeDns.Log._LogError("Error occured while querying  table existence.", Logger.CSqliteExecuteReader, error);
+                    PrimeDns.Log._LogInformation("Error occured while querying  table existence.", Logger.ConstSqliteExecuteReader, error);
+                    PrimeDns.Log._LogError("Error occured while querying  table existence.", Logger.ConstSqliteExecuteReader, error);
                 }
                 Connection.Close();
                 GC.Collect();
@@ -54,12 +54,12 @@
                 try
                 {
                     dropCommand.ExecuteNonQuery();
-                    PrimeDns.Log._LogInformation("Table dropped successfully", Logger.CSqliteExecuteNonQuery, null);
+                    PrimeDns.Log._LogInformation("Table dropped successfully", Logger.ConstSqliteExecuteNonQuery, null);
                 }
                 catch (SqliteException error)
                 {
-                    PrimeDns.Log._LogInformation("Error occured while dropping table.", Logger.CSqliteExecuteNonQuery, error);
-                    PrimeDns.Log._LogError("Error occured while dropping table.", Logger.CSqliteExecuteNonQuery, error);
+                    PrimeDns.Log._LogInformation("Error occured while dropping table.", Logger.ConstSqliteExecuteNonQuery, error);
+                    PrimeDns.Log._LogError("Error occured while dropping table.", Logger.ConstSqliteExecuteNonQuery, error);
                 }
                 Connection.Close();
                 GC.Collect();
@@ -79,12 +79,12 @@
                 try
                 {
                     dropCommand.ExecuteNonQuery();
-                    PrimeDns.Log._LogInformation("Table entries deleted successfully", Logger.CSqliteExecuteNonQuery, null);
+                    PrimeDns.Log._LogInformation("Table entries deleted successfully", Logger.ConstSqliteExecuteNonQuery, null);
                 }
                 catch (SqliteException error)
                 {
-                    PrimeDns.Log._LogInformation("Error occured while deleting entries from table.", Logger.CSqliteExecuteNonQuery, error);
-                    PrimeDns.Log._LogError("Error occured while deleting entries from table.", Logger.CSqliteExecuteNonQuery, error);
+                    PrimeDns.Log._LogInformation("Error occured while deleting entries from table.", Logger.ConstSqliteExecuteNonQuery, error);
+                    PrimeDns.Log._LogError("Error occured while deleting entries from table.", Logger.ConstSqliteExecuteNonQuery, error);
                 }
                 Connection.Close();
                 GC.Collect();
@@ -118,11 +118,11 @@
                     
                 }
                 
-                PrimeDns.Log._LogInformation("PrimeDNS State value successfully taken from PrimeDNSState - " + pState, Logger.CSqliteExecuteReader, null);
+                PrimeDns.Log._LogInformation("PrimeDNS State value successfully taken from PrimeDNSState - " + pState, Logger.ConstSqliteExecuteReader, null);
             }
             catch (Exception error)
             {
-                PrimeDns.Log._LogError("Error in accessing PrimeDNSState Table from Database - " + pState, Logger.CSqliteExecuteReader, error);
+                PrimeDns.Log._LogError("Error in accessing PrimeDNSState Table from Database - " + pState, Logger.ConstSqliteExecuteReader, error);
             }
             return flagToReturn;
         }
@@ -150,7 +150,7 @@
                     {
                         flag = true;
                     }
-                    PrimeDns.Log._LogError("SQlite Execute Non Query Error\n" + pCommand + "\n" + pConnectionString + "****\n", Logger.CSqliteExecuteNonQuery, e);
+                    PrimeDns.Log._LogError("SQlite Execute Non Query Error\n" + pCommand + "\n" + pConnectionString + "****\n", Logger.ConstSqliteExecuteNonQuery, e);
                 }
                 Connection.Close();
                 GC.Collect();

@@ -25,9 +25,9 @@ namespace PrimeDNS.DNS
 
         internal async Task UpdateTtl(DateTimeOffset time)
         {
-            PrimeDns.Log._LogInformation("TTL Updater Started at Time : " + time.ToString(), Logger.Logger.CTtlUpdater, null);
+            PrimeDns.Log._LogInformation("TTL Updater Started at Time : " + time.ToString(), Logger.Logger.ConstTtlUpdater, null);
             await UpdateTimeToLive();
-            PrimeDns.Log._LogInformation("TTL Updater Exited at Time : " + time.ToString(), Logger.Logger.CTtlUpdater, null);
+            PrimeDns.Log._LogInformation("TTL Updater Exited at Time : " + time.ToString(), Logger.Logger.ConstTtlUpdater, null);
         }
 
         internal async Task UpdateTimeToLive()
@@ -76,7 +76,7 @@ namespace PrimeDNS.DNS
 
                             if (PrimeDns.TtlUpdaterErrorCount >= PrimeDns.Config.TtlUpdaterErrorLimit)
                             {
-                                PrimeDns.Log._LogWarning("TOO MANY ERRORS IN TTL UPDATER!! Breaking..", Logger.Logger.CTtlUpdater, null);
+                                PrimeDns.Log._LogWarning("TOO MANY ERRORS IN TTL UPDATER!! Breaking..", Logger.Logger.ConstTtlUpdater, null);
                                 break;
                             }
                         }
@@ -121,7 +121,7 @@ namespace PrimeDNS.DNS
             }
             catch (Exception error)
             {              
-                PrimeDns.Log._LogError("Error occured while updating PrimeDNSMap table for TTL Updater", Logger.Logger.CSqliteExecuteNonQuery, error);
+                PrimeDns.Log._LogError("Error occured while updating PrimeDNSMap table for TTL Updater", Logger.Logger.ConstSqliteExecuteNonQuery, error);
             }
         }
 
@@ -134,7 +134,7 @@ namespace PrimeDNS.DNS
             }
             catch (Exception e)
             {
-                PrimeDns.Log._LogError("DoWorkAsync in TTL Updater caused EXCEPTION!", Logger.Logger.CTtlUpdater, e);
+                PrimeDns.Log._LogError("DoWorkAsync in TTL Updater caused EXCEPTION!", Logger.Logger.ConstTtlUpdater, e);
             }
             return result;
         }
