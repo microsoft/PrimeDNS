@@ -1,13 +1,9 @@
 Host File used for testing.
 
 ###---PrimeDNS-BEGIN-SECTION
-These lines
-
-should
-
-get removed
-
-
+127.0.0.1	www.dhamma.org
+127.0.0.1	www.bing.com
+127.0.0.1	www.goodreads.com
 ###---PrimeDNS-END-SECTION
 
 There should not be any changes made at this portion.

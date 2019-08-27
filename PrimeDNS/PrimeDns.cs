@@ -29,10 +29,13 @@ namespace PrimeDNS
         public static CancellationToken DnsResolverCancellationToken;
         public static string PrimeDnsDataHome;
 
+        private readonly int _dataExists;
+
         internal PrimeDns()
         {
             Config = new AppConfig();          
-            Log = new Logger.Logger();          
+            Log = new Logger.Logger();
+            _dataExists  = Config.GetConfig();
         }
 
         private static void Main(string[] args)
@@ -44,8 +47,7 @@ namespace PrimeDNS
 
             PrimeDnsDataHome = (args.Length > 0) ? args[0] : null;
 
-            var dataExists = Config.GetConfig();
-            if (dataExists != 1)
+            if (primeDns._dataExists != 1)
             {
                 Log._LogInformation("********* PRIMEDNS CLOSES DUE TO LACK OF DATA *********", Logger.Logger.CStartUp, null);
             }
