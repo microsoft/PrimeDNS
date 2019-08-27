@@ -1,41 +1,46 @@
-﻿namespace PrimeDNS.Telemetry
+﻿/* -----------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License.
+ * ----------------------------------------------------------------------- */
+
+namespace PrimeDNS.Telemetry
 {
     using Microsoft.Extensions.Logging;
 
     internal class LogConnect
     {
-        private const int CMetric_NumberOfCriticalDomains = 1;
-        private const int CMetric_DnsCalls = 2;
-        private const int CThread_Status = 3;
+        private const int CMetricNumberOfCriticalDomains = 1;
+        private const int CMetricDnsCalls = 2;
+        private const int CThreadStatus = 3;
         private const int CPerf = 4;
 
-        private static ILoggerFactory _loggerFactory = new LoggerFactory()
+        private static readonly ILoggerFactory LoggerFactory = new LoggerFactory()
                 .AddFile("Telemetry_Logs/PrimeDns-Telemetry-{Date}.txt");
-        private static ILogger _logger = _loggerFactory.CreateLogger<LogConnect>();
+        private static readonly ILogger Logger = LoggerFactory.CreateLogger<LogConnect>();
 
         public static void PushNumberOfCriticalDomainsToLog(int pNumberOfCriticalDomains)
         {
-            _logger.LogInformation("|1|NumberOfCriticalDomains|" + pNumberOfCriticalDomains, CMetric_NumberOfCriticalDomains, null);
+            Logger.LogInformation("|1|NumberOfCriticalDomains|" + pNumberOfCriticalDomains, CMetricNumberOfCriticalDomains, null);
         }
 
-        public static void PushDnsCallsDataToLog(string pDomainName, string pStatus, string pType, int pNewIPAdded, int pOldIPRemoved, string pErrorMessage)
+        public static void PushDnsCallsDataToLog(string pDomainName, string pStatus, string pType, int pNewIpAdded, int pOldIpRemoved, string pErrorMessage)
         {
-            _logger.LogInformation("|7|DnsCalls|1|" + pType + "|" + pDomainName + "|" + pStatus + "|" + pNewIPAdded + "|" + pOldIPRemoved + "|" + pErrorMessage + "|", CMetric_DnsCalls, null);
+            Logger.LogInformation("|7|DnsCalls|1|" + pType + "|" + pDomainName + "|" + pStatus + "|" + pNewIpAdded + "|" + pOldIpRemoved + "|" + pErrorMessage + "|", CMetricDnsCalls, null);
         }
 
         public static void PushStatusOfThreadToLog(string pThreadName, string pStatus)
         {
-            _logger.LogInformation("|3|ThreadStatus|1|" + pThreadName + "|" + pStatus, CThread_Status, null);
+            Logger.LogInformation("|3|ThreadStatus|1|" + pThreadName + "|" + pStatus, CThreadStatus, null);
         }
 
         public static void PushCpuUtilizationToLog(float pCpuUtilization)
         {
-            _logger.LogInformation("|1|CPU|" + pCpuUtilization, CPerf, null);
+            Logger.LogInformation("|1|CPU|" + pCpuUtilization, CPerf, null);
         }
 
         public static void PushRamUtilizationToLog(float pRamUtilization)
         {
-            _logger.LogInformation("|1|RAM|" + pRamUtilization, CPerf, null);
+            Logger.LogInformation("|1|RAM|" + pRamUtilization, CPerf, null);
         }
     }
 }

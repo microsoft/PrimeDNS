@@ -126,9 +126,9 @@ namespace PrimeDNS
                 var ramUsage = Helper.CpuPerformance.GetRamUsage();
 
                 Log._LogInformation("CPU Utilization of PrimeDNS is - " + cpuUsage, Logger.Logger.ConstStartUp, null);
-                Telemetry.Telemetry.PushCPUData(cpuUsage);
+                Telemetry.Telemetry.PushCpuData(cpuUsage);
                 Log._LogInformation("RAM Usage of PrimeDNS is - " + ramUsage, Logger.Logger.ConstStartUp, null);
-                Telemetry.Telemetry.PushRAMData(ramUsage);
+                Telemetry.Telemetry.PushRamData(ramUsage);
 
                 nextStartTimeOfMapUpdater += TimeSpan.FromSeconds(MapUpdater.MapUpdaterFrequencyInSeconds);
                 var delayMapUpdater = nextStartTimeOfMapUpdater - DateTimeOffset.UtcNow;
