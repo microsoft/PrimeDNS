@@ -122,8 +122,8 @@ namespace PrimeDNS
             {
                 Map.MapUpdater.UpdateMap(nextStartTimeOfMapUpdater);
 
-                var cpuUsage = Helper.CPU_Performance.GetCurrentCpuUsage();
-                var ramUsage = Helper.CPU_Performance.GetRAMUsage();
+                var cpuUsage = Helper.CpuPerformance.GetCurrentCpuUsage();
+                var ramUsage = Helper.CpuPerformance.GetRamUsage();
 
                 Log._LogInformation("CPU Utilization of PrimeDNS is - " + cpuUsage, Logger.Logger.CStartUp, null);
                 Telemetry.Telemetry.PushCPUData(cpuUsage);
