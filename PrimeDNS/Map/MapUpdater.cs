@@ -239,7 +239,7 @@ namespace PrimeDNS.Map
         /*
          * MakePrimeDnsMapUpdatedTrue() sets the PrimeDnsMapUpdated flag to true in PrimeDNSState Table.
          */
-        private static void MakePrimeDnsMapUpdatedTrue()
+        public static void MakePrimeDnsMapUpdatedTrue()
         {
             var updateCommand = "UPDATE " + AppConfig.ConstTableNamePrimeDnsState + " SET FlagValue=1" +
                                 $" WHERE FlagName=\"{AppConfig.ConstPrimeDnsMapUpdated}\"";
@@ -419,6 +419,7 @@ namespace PrimeDNS.Map
                     DeletePrimeDnsMapRow(s);
                 }
                 hostNamesToBeDeleted.Clear();
+                MakePrimeDnsMapUpdatedTrue();
             }
             PrimeDns.Log._LogInformation("Updated PrimeDNSMap table successfully", Logger.ConstSqliteExecuteNonQuery, null);
 

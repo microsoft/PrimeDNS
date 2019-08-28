@@ -248,6 +248,7 @@ namespace PrimeDNS
                     }
                 }
                 tasks.Clear();
+                MapUpdater.MakePrimeDnsMapUpdatedTrue();
             }
         }
 
