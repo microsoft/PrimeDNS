@@ -1,10 +1,5 @@
 Host File used for testing.
 
-###---PrimeDNS-BEGIN-SECTION
-127.0.0.1	www.dhamma.org
-127.0.0.1	www.bing.com
-127.0.0.1	www.goodreads.com
-###---PrimeDNS-END-SECTION
 
 There should not be any changes made at this portion.
 The number of lines in this file should remain 7+number of entries added.

@@ -140,13 +140,11 @@ namespace PrimeDNS
                     await TtlUpdater.UpdateTtl(nextStartTimeOfTtlUpdater);
                     nextStartTimeOfTtlUpdater += TimeSpan.FromSeconds(TimeToLiveUpdater.TimeToLiveUpdaterFrequencyInSeconds);
                 }
-                if( (nextStartTimeOfWatcher <= nextStartTimeOfMapUpdater) && Config.IsDomainsUpdaterEnabled)
-                {
 
-                    DomainsConfig.CallDomainsWatcher(nextStartTimeOfWatcher);
-                    Config.CallAppConfigWatcher(nextStartTimeOfWatcher);
-                    nextStartTimeOfWatcher += TimeSpan.FromSeconds(Config.WatcherFrequencyInSeconds);
-                }
+                if ((nextStartTimeOfWatcher > nextStartTimeOfMapUpdater) || !Config.IsDomainsUpdaterEnabled) continue;
+                DomainsConfig.CallDomainsWatcher(nextStartTimeOfWatcher);
+                Config.CallAppConfigWatcher(nextStartTimeOfWatcher);
+                nextStartTimeOfWatcher += TimeSpan.FromSeconds(Config.WatcherFrequencyInSeconds);
             }
         }
 
