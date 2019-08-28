@@ -396,11 +396,13 @@ namespace PrimeDNS.Map
 
             if (tasks.Count > 0)
             {
+                var isMapUpdated = false;
                 foreach (var (item1, item2) in await Task.WhenAll(tasks) )
                 {
                     if (item2)
                     {
                         UpdatePrimeDnsMapRow(item1);
+                        isMapUpdated = true;
                         //Console.WriteLine("Ending Dns Resolver {0}", task.Item1.HostName);
                     }
                     else
@@ -409,7 +411,8 @@ namespace PrimeDNS.Map
                     }
                 }
                 tasks.Clear();
-                MakePrimeDnsMapUpdatedTrue();
+                if(isMapUpdated)
+                    MakePrimeDnsMapUpdatedTrue();
             }
 
             if (hostNamesToBeDeleted.Count > 0)
