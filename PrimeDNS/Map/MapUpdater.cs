@@ -133,24 +133,24 @@ namespace PrimeDNS.Map
 
             if (tasks.Count > 0)
             {
-                foreach (var task in await Task.WhenAll(tasks))
+                foreach (var (item1, item2) in await Task.WhenAll(tasks))
                 {
-                    if (task.Item2)
+                    if (item2)
                     {
-                        WriteToPrimeDnsMap(task.Item1);
+                        WriteToPrimeDnsMap(item1);
                         //Console.WriteLine("Ending Dns Resolver {0}", task.Item1.HostName);
                     }
                     else
                     {
-                        PrimeDns.Log._LogInformation("Failure in adding New Domain to PrimeDNSMap " + task.Item1.HostName, Logger.ConstDomainsWatcher, null);
+                        PrimeDns.Log._LogInformation("Failure in adding New Domain to PrimeDNSMap " + item1.HostName, Logger.ConstDomainsWatcher, null);
                         try
                         {
-                            if (!PrimeDns.DomainsConfig.DomainYetToBeAddedToMap[task.Item1.HostName])
-                                PrimeDns.DomainsConfig.DomainYetToBeAddedToMap[task.Item1.HostName] = true;
+                            if (!PrimeDns.DomainsConfig.DomainYetToBeAddedToMap[item1.HostName])
+                                PrimeDns.DomainsConfig.DomainYetToBeAddedToMap[item1.HostName] = true;
                         }
                         catch (KeyNotFoundException)
                         {
-                            PrimeDns.DomainsConfig.DomainYetToBeAddedToMap.Add(task.Item1.HostName, true);
+                            PrimeDns.DomainsConfig.DomainYetToBeAddedToMap.Add(item1.HostName, true);
                         }
                     }
                 }
