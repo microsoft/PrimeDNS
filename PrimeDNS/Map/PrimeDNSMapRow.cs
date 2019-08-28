@@ -1,4 +1,9 @@
-﻿namespace PrimeDNS.Map
+﻿/* -----------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License.
+ * ----------------------------------------------------------------------- */
+
+namespace PrimeDNS.Map
 {
     using System;
     using System.Collections.Generic;
@@ -25,8 +30,8 @@
         }
 
         /*
-         * IpAddressList is stored as a string in PrimeDNSMap Table (#-Seperated).
-         * Hence, we require GetStringOfIpAddressList() for the convertion of types.
+         * IpAddressList is stored as a string in PrimeDNSMap Table (#-Separated).
+         * Hence, we require GetStringOfIpAddressList() for the conversion of types.
          */
         public string GetStringOfIpAddressList()
         {
@@ -43,7 +48,7 @@
         {
             this.IpAddressList.Clear();
             var ipList = pIpList.Split('#');
-            foreach(string ip in ipList)
+            foreach(var ip in ipList)
             {
                 this.IpAddressList.Add(IPAddress.Parse(ip));
             }

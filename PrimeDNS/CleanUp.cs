@@ -1,4 +1,9 @@
-﻿namespace PrimeDNS
+﻿/* -----------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License.
+ * ----------------------------------------------------------------------- */
+
+namespace PrimeDNS
 {
     using PrimeDNS.Map;
     using System.IO;
@@ -9,7 +14,7 @@
         {
             //PrimeDns.semaphore.Wait();
 
-            PrimeDns.Log._LogInformation("CLEANING UP Started", Logger.Logger.CStartUp, null);
+            PrimeDns.Log._LogInformation("CLEANING UP Started", Logger.Logger.ConstStartUp, null);
 
             if (File.Exists(PrimeDns.Config.MapDatabasePath))
                 File.Delete(PrimeDns.Config.MapDatabasePath);
@@ -27,7 +32,7 @@
 
             //PrimeDns.semaphore.Release();
 
-            PrimeDns.Log._LogInformation("CLEANING UP Ended", Logger.Logger.CStartUp, null);
+            PrimeDns.Log._LogInformation("CLEANING UP Ended", Logger.Logger.ConstStartUp, null);
         }
 
         public static void CreateMap()

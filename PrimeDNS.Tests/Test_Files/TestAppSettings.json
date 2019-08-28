@@ -1,6 +1,0 @@
-﻿{
-  // NOTE: PrimeDNSHome change should also be done in
-  // (1) AppConfig.cs (2) Test_AppConfig.cs
-
-  "PrimeDNSTestsHome": "E:\\PrimeDNS\\PrimeDNS.Tests"
-}

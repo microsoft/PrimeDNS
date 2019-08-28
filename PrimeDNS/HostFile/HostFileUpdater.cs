@@ -1,4 +1,9 @@
-﻿namespace PrimeDNS.HostFile
+﻿/* -----------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License.
+ * ----------------------------------------------------------------------- */
+
+namespace PrimeDNS.HostFile
 {
     using System;
     using System.IO;
@@ -12,15 +17,15 @@
     {
         internal int PrimeDnsBeginLine;
         internal int HostFileUpdaterFrequencyInSeconds;
-        private static string mapConnectionString;
-        private static string stateConnectionString;
-        private static StringBuilder stringBuilder;
+        private static string _mapConnectionString;
+        private static string _stateConnectionString;
+        private static StringBuilder _stringBuilder;
 
         public HostFileUpdater()
         {
             HostFileUpdaterFrequencyInSeconds = PrimeDns.Config.HostFileUpdaterFrequencyInSeconds;
-            mapConnectionString = PrimeDns.Config.MapConnectionString;
-            stateConnectionString = PrimeDns.Config.StateConnectionString;
+            _mapConnectionString = PrimeDns.Config.MapConnectionString;
+            _stateConnectionString = PrimeDns.Config.StateConnectionString;
         }
 
         /*
@@ -37,9 +42,9 @@
         internal void UpdateHostfile(DateTimeOffset time)
         {
             
-            PrimeDns.Log._LogInformation("Host File Updater Started at Time : " + time.ToString(), Logger.CStartUp, null);
+            PrimeDns.Log._LogInformation("Host File Updater Started at Time : " + time.ToString(), Logger.ConstStartUp, null);
             Telemetry.Telemetry.PushStatusOfThread("HostFileUpdater", "Started");
-            if (!SqliteConnect.CheckPrimeDNSState(AppConfig.CPrimeDnsSectionCreated))
+            if (!SqliteConnect.CheckPrimeDnsState(AppConfig.ConstPrimeDnsSectionCreated))
             {
                 CreatePrimeDnsSection();
                 MakePrimeDnsSectionCreatedTrue();
@@ -58,7 +63,7 @@
                 }
                 catch(IOException ioe)
                 {
-                    PrimeDns.Log._LogError("Aggregate Exception occured while updating Hostfile - ", Logger.CHostFileIntegrity, ioe);
+                    PrimeDns.Log._LogError("Aggregate Exception occured while updating Hostfile - ", Logger.ConstHostFileIntegrity, ioe);
                     Telemetry.Telemetry.PushStatusOfThread("HostFileUpdater", "Failed");
                 }                     
             }
@@ -67,10 +72,10 @@
                 FileHelper.RemoveLineFromFile(PrimeDns.Config.HostFilePath, PrimeDns.Config.PrimeDnsSectionBeginString);
                 FileHelper.RemoveLineFromFile(PrimeDns.Config.HostFilePath, PrimeDns.Config.PrimeDnsSectionEndString);
                 CreatePrimeDnsSection();
-                PrimeDns.Log._LogWarning("CheckPrimeDnsSectionIntegrity FAILED!!, Continuing..",Logger.CHostFileIntegrity,null);
+                PrimeDns.Log._LogWarning("CheckPrimeDnsSectionIntegrity FAILED!!, Continuing..",Logger.ConstHostFileIntegrity,null);
             }
             Telemetry.Telemetry.PushStatusOfThread("HostFileUpdater", "Ended");
-            PrimeDns.Log._LogInformation("Host File Updater Ended at Time : " + time.ToString(), Logger.CStartUp, null);
+            PrimeDns.Log._LogInformation("Host File Updater Ended at Time : " + time.ToString(), Logger.ConstStartUp, null);
 
             GC.Collect();
             GC.WaitForPendingFinalizers();
@@ -114,8 +119,8 @@
                 f.Close();
             }
             
-            int tries = 0;
-            bool flag = false;
+            var tries = 0;
+            var flag = false;
             while (tries < 3 && !flag)
             {
                 try
@@ -127,7 +132,7 @@
                 }
                 catch (AggregateException ae)
                 {
-                    PrimeDns.Log._LogError("Exception occured while inserting into Hostfile - ", Logger.CHostFileIntegrity, ae);
+                    PrimeDns.Log._LogError("Exception occured while inserting into Hostfile - ", Logger.ConstHostFileIntegrity, ae);
                     tries++;
                 }
             }
@@ -163,7 +168,7 @@
                 }
                 catch (AggregateException ae)
                 {
-                    PrimeDns.Log._LogError("Exception occured while Finding PrimeDns Section Begin String in File - ", Logger.CHostFileIntegrity, ae);
+                    PrimeDns.Log._LogError("Exception occured while Finding PrimeDns Section Begin String in File - ", Logger.ConstHostFileIntegrity, ae);
                     tries++;
                 }
             }
@@ -192,16 +197,16 @@
          */
         private static void MakePrimeDnsSectionCreatedTrue()
         {
-            var updateCommand = String.Format("UPDATE " + AppConfig.CTableNamePrimeDnsState + " SET FlagValue=1" +
-                    " WHERE FlagName=\"{0}\"", AppConfig.CPrimeDnsSectionCreated);         
+            var updateCommand = "UPDATE " + AppConfig.ConstTableNamePrimeDnsState + " SET FlagValue=1" +
+                                $" WHERE FlagName=\"{AppConfig.ConstPrimeDnsSectionCreated}\"";         
             try
             {
-                var numberOfRowsUpdated = SqliteConnect.ExecuteNonQuery(updateCommand, stateConnectionString);
-                PrimeDns.Log._LogInformation("PrimeDNSState table updated - # of rows updated - " + numberOfRowsUpdated, Logger.CSqliteExecuteNonQuery, null);
+                var numberOfRowsUpdated = SqliteConnect.ExecuteNonQuery(updateCommand, _stateConnectionString);
+                PrimeDns.Log._LogInformation("PrimeDNSState table updated - # of rows updated - " + numberOfRowsUpdated, Logger.ConstSqliteExecuteNonQuery, null);
             }
             catch (Exception error)
             {               
-                PrimeDns.Log._LogError("Error occured while updating PrimeDNSState table on Database", Logger.CSqliteExecuteNonQuery, error);
+                PrimeDns.Log._LogError("Error occured while updating PrimeDNSState table on Database", Logger.ConstSqliteExecuteNonQuery, error);
             }
         }
 
@@ -211,18 +216,18 @@
          */
         private static string GetPrimeDnsSectionEntries()
         {
-            PrimeDns.semaphore.Wait();
+            PrimeDns.Semaphore.Wait();
             string entries;
-            stringBuilder =  new StringBuilder("");
-            var selectCommand = String.Format("Select * from " + AppConfig.CTableNamePrimeDnsMap +
-                    " WHERE TimeToLiveInSeconds > {0}", PrimeDns.Config.TimeToLiveThresholdInSeconds);
+            _stringBuilder =  new StringBuilder("");
+            var selectCommand = "Select * from " + AppConfig.ConstTableNamePrimeDnsMap +
+                                $" WHERE TimeToLiveInSeconds > {PrimeDns.Config.TimeToLiveThresholdInSeconds}";
             try
             {
-                using (var Connection = new SqliteConnection(mapConnectionString))
+                using (var connection = new SqliteConnection(_mapConnectionString))
                 {
-                    Connection.Open();
+                    connection.Open();
 
-                    using (var c = new SqliteCommand(selectCommand, Connection))
+                    using (var c = new SqliteCommand(selectCommand, connection))
                     {
                         using (var query = c.ExecuteReader())
                         {
@@ -232,25 +237,23 @@
                                 var hostName = query.GetString(0);
                                 foreach (var ipAddress in ipAddresses)
                                 {
-                                    if (IpHelper.IsIpAddressValid(ipAddress))
-                                    {
-                                        entries = (ipAddress + "\t" + hostName + "\n");
-                                        stringBuilder.Append(entries);
-                                    }
+                                    if (!IpHelper.IsIpAddressValid(ipAddress)) continue;
+                                    entries = (ipAddress + "\t" + hostName + "\n");
+                                    _stringBuilder.Append(entries);
                                 }
                             }
                         }
                     }
                 }
-                PrimeDns.Log._LogInformation("Data pulled from PrimeDNSMap table successfully", Logger.CSqliteExecuteReader, null);
+                PrimeDns.Log._LogInformation("Data pulled from PrimeDNSMap table successfully", Logger.ConstSqliteExecuteReader, null);
             }
             catch (Exception error)
             {
-                PrimeDns.Log._LogError("Error occured while pulling data from PrimeDNSMap table", Logger.CSqliteExecuteNonQuery, error);
+                PrimeDns.Log._LogError("Error occured while pulling data from PrimeDNSMap table", Logger.ConstSqliteExecuteNonQuery, error);
             }
-            entries = stringBuilder.ToString();
-            stringBuilder.Clear();
-            PrimeDns.semaphore.Release();
+            entries = _stringBuilder.ToString();
+            _stringBuilder.Clear();
+            PrimeDns.Semaphore.Release();
             return entries;
         }
 

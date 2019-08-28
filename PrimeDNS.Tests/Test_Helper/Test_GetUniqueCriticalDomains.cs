@@ -1,4 +1,9 @@
-﻿namespace PrimeDNS.Tests.Test_Helper
+﻿/* -----------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License.
+ * ----------------------------------------------------------------------- */
+
+namespace PrimeDNS.Tests.Test_Helper
 {
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Newtonsoft.Json.Linq;
@@ -15,7 +20,7 @@
             JToken[] expectedOutput = { "www.bing.com", "www.goodreads.com", "www.dhamma.org" };
 
             var actualOutput = JsonHelper.GetUniqueCriticalDomains(input);
-            var isEqual = Enumerable.SequenceEqual(expectedOutput, actualOutput);
+            var isEqual = expectedOutput.SequenceEqual(actualOutput);
 
             Assert.IsTrue(isEqual);
         }

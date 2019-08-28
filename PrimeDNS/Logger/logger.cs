@@ -1,4 +1,9 @@
-﻿namespace PrimeDNS.Logger
+﻿/* -----------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License.
+ * ----------------------------------------------------------------------- */
+
+namespace PrimeDNS.Logger
 {
     using Microsoft.Extensions.Logging;
     using System;
@@ -7,19 +12,17 @@
         private static ILoggerFactory _loggerFactory;
         private static ILogger _logger;
 
-        public const int CTtlUpdater = 3;
-        public const int CDnsResolver = 6;
-        public const int CconfigWatcher = 9;
-        public const int CDomainsWatcher = 18;
-        public const int CStartUp = 1008;
+        public const int ConstTtlUpdater = 3;
+        public const int ConstDnsResolver = 6;
+        public const int ConstConfigWatcher = 9;
+        public const int ConstDomainsWatcher = 18;
+        public const int ConstStartUp = 1008;
 
-        public const int CSqliteExecuteReader = 108;
-        public const int CSqliteExecuteNonQuery = 109;
-        public const int CHostFileIntegrity = 110;
-        public const int CTaskException = 111;
-        public const int CPrimeDnsStateIntegrity = 112;
-
-        public const int CMdmTelemetry = 113;
+        public const int ConstSqliteExecuteReader = 108;
+        public const int ConstSqliteExecuteNonQuery = 109;
+        public const int ConstHostFileIntegrity = 110;
+        public const int ConstTaskException = 111;
+        public const int ConstPrimeDnsStateIntegrity = 112;
 
         public Logger()
         {

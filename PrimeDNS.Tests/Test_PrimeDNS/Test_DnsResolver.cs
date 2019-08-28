@@ -1,12 +1,14 @@
-﻿namespace PrimeDNS.Tests.Test_PrimeDNS
+﻿/* -----------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License.
+ * ----------------------------------------------------------------------- */
+
+namespace PrimeDNS.Tests.Test_PrimeDNS
 {
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using Newtonsoft.Json.Linq;
-    using PrimeDNS.DNS;
-    using PrimeDNS.Helper;
-    using PrimeDNS.Map;
+    using DNS;
+    using Map;
     using System;
-    using System.Linq;
     using System.Threading;
 
     [TestClass]
@@ -15,12 +17,16 @@
         [TestMethod]
         public void TestDnsResolveSuccess()
         {
-            PrimeDns primeDns = new PrimeDns();
-            PrimeDnsMapRow mapRow = new PrimeDnsMapRow("www.bing.com");
-            Tuple<PrimeDnsMapRow, bool> result = Tuple.Create(mapRow, false);
+            /*
+             *  The following assignments is made to trigger the constructor of PrimeDNS class. It won't work without that.
+             */
+            var primeDns = new PrimeDns();
 
-            CancellationTokenSource source = new CancellationTokenSource();
-            CancellationToken token = source.Token;
+            var mapRow = new PrimeDnsMapRow("www.bing.com");
+            var result = Tuple.Create(mapRow, false);
+
+            var source = new CancellationTokenSource();
+            var token = source.Token;
 
             try
             {
@@ -35,14 +41,18 @@
         }
 
         [TestMethod]
-        public void TestDnsResolveNXDomain()
+        public void TestDnsResolveNxDomain()
         {
-            PrimeDns primeDns = new PrimeDns();
-            PrimeDnsMapRow mapRow = new PrimeDnsMapRow("www.start.binginternal.com");
-            Tuple<PrimeDnsMapRow, bool> result = Tuple.Create(mapRow, false);
+            /*
+             *  The following assignments is made to trigger the constructor of PrimeDNS class. It won't work without that.
+             */
+            var primeDns = new PrimeDns();
 
-            CancellationTokenSource source = new CancellationTokenSource();
-            CancellationToken token = source.Token;
+            var mapRow = new PrimeDnsMapRow("www.start.binginternal.com");
+            var result = Tuple.Create(mapRow, false);
+
+            var source = new CancellationTokenSource();
+            var token = source.Token;
 
             try
             {
@@ -60,12 +70,16 @@
         [TestMethod]
         public void TestDnsResolveServFail()
         {
-            PrimeDns primeDns = new PrimeDns();
-            PrimeDnsMapRow mapRow = new PrimeDnsMapRow("www.dev5-bing-int1.com");
-            Tuple<PrimeDnsMapRow, bool> result = Tuple.Create(mapRow, false);
+            /*
+             *  The following assignments is made to trigger the constructor of PrimeDNS class. It won't work without that.
+             */
+            var primeDns = new PrimeDns();
 
-            CancellationTokenSource source = new CancellationTokenSource();
-            CancellationToken token = source.Token;
+            var mapRow = new PrimeDnsMapRow("www.dev5-bing-int1.com");
+            var result = Tuple.Create(mapRow, false);
+
+            var source = new CancellationTokenSource();
+            var token = source.Token;
 
             try
             {

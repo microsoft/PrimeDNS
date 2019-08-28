@@ -1,23 +1,21 @@
-﻿namespace PrimeDNS.Tests
+﻿/* -----------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License.
+ * ----------------------------------------------------------------------- */
+
+namespace PrimeDNS.Tests
 {
     using System.IO;
     using Microsoft.Extensions.Configuration;
-    class Test_AppConfig
+    class TestAppConfig
     {
-        public string primeDNSTestsHome;
-        public string primeDNSTestsFiles;
+        public string PrimeDnsTestsHome;
+        public string PrimeDnsTestsFiles;
 
         public static IConfiguration Configuration { get; set; }
-        public Test_AppConfig()
+        public TestAppConfig()
         {
-            var builder = new ConfigurationBuilder()
-                    .SetBasePath(Directory.GetCurrentDirectory() + "//..//..//..//Test_Files//")
-                    .AddJsonFile("TestAppSettings.json");
-
-            Configuration = builder.Build();
-
-            primeDNSTestsHome = Configuration["PrimeDNSTestsHome"];
-            primeDNSTestsFiles = primeDNSTestsHome + "\\Test_Files\\";
+            PrimeDnsTestsFiles = Directory.GetCurrentDirectory() + "//..//..//..//Test_Files//";
         }
     }
 }

@@ -1,8 +1,12 @@
-﻿namespace PrimeDNS
+﻿/* -----------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License.
+ * ----------------------------------------------------------------------- */
+
+namespace PrimeDNS
 {
-    using PrimeDNS.DNS;
+    using DNS;
     using System;
-    using System.Collections.Generic;
     using System.IO;
     using System.Threading;
     using System.Threading.Tasks;
@@ -18,36 +22,40 @@
         public static TimeToLiveUpdater TtlUpdater;
         public static DomainsConfig DomainsConfig;
 
-        public static SemaphoreSlim semaphore;
+        public static SemaphoreSlim Semaphore;
         public static int TtlUpdaterErrorCount;
-        public static CancellationToken dnsResolverCancellationToken;
+        public static CancellationToken DnsResolverCancellationToken;
         public static string PrimeDnsDataHome;
+
+        private readonly int _dataExists;
 
         internal PrimeDns()
         {
             Config = new AppConfig();          
-            Log = new Logger.Logger();          
+            Log = new Logger.Logger();
+            _dataExists  = Config.GetConfig();
         }
 
         private static void Main(string[] args)
         {
+            /*
+             *  The following assignments is made to trigger the constructor of PrimeDNS class. It won't work without that.
+             */
             var primeDns = new PrimeDns();
-            if (args.Length > 0)
-                PrimeDnsDataHome = args[0];
-            else
-                PrimeDnsDataHome = null;
-            int dataExists = Config.GetConfig();
-            if (dataExists != 1)
+
+            PrimeDnsDataHome = (args.Length > 0) ? args[0] : null;
+
+            if (primeDns._dataExists != 1)
             {
-                Log._LogInformation("********* PRIMEDNS CLOSES DUE TO LACK OF DATA *********", Logger.Logger.CStartUp, null);
+                Log._LogInformation("********* PRIMEDNS CLOSES DUE TO LACK OF DATA *********", Logger.Logger.ConstStartUp, null);
             }
             else
             {
-                semaphore = new SemaphoreSlim(1, 1);
+                Semaphore = new SemaphoreSlim(1, 1);
 
                 if (Config.IsPrimeDnsEnabled)
                 {
-                    Log._LogInformation("********* PRIMEDNS STARTS *********", Logger.Logger.CStartUp, null);
+                    Log._LogInformation("********* PRIMEDNS STARTS *********", Logger.Logger.ConstStartUp, null);
 
                     MapUpdater = new Map.MapUpdater();
                     HostFileUpdater = new HostFile.HostFileUpdater();
@@ -69,13 +77,13 @@
                     }
                     catch (Exception e)
                     {
-                        Log._LogError("********* PRIMEDNS CRASHES WITH ERROR!!!! *********", Logger.Logger.CStartUp, e);
+                        Log._LogError("********* PRIMEDNS CRASHES WITH ERROR!!!! *********", Logger.Logger.ConstStartUp, e);
                         //CleanUp.Clean();
                     }
                 }
                 else
                 {
-                    Log._LogInformation("********* PRIMEDNS IS NOT ENABLED *********", Logger.Logger.CStartUp, null);
+                    Log._LogInformation("********* PRIMEDNS IS NOT ENABLED *********", Logger.Logger.ConstStartUp, null);
                 }
             }
              
@@ -89,7 +97,7 @@
             }
             catch (AggregateException ae)
             {
-                Log._LogError("Exception occured while running Map Updater as async task - ",Logger.Logger.CTaskException,ae);
+                Log._LogError("Exception occured while running Map Updater as async task - ",Logger.Logger.ConstTaskException,ae);
             }
             try
             {
@@ -97,7 +105,7 @@
             }
             catch (AggregateException ae)
             {
-                Log._LogError("Exception occured while running HostFile Updater as async task - ", Logger.Logger.CTaskException, ae);
+                Log._LogError("Exception occured while running HostFile Updater as async task - ", Logger.Logger.ConstTaskException, ae);
             }
         }
 
@@ -114,15 +122,15 @@
             {
                 Map.MapUpdater.UpdateMap(nextStartTimeOfMapUpdater);
 
-                var cpuUsage = Helper.CPU_Performance.GetCurrentCpuUsage();
-                var ramUsage = Helper.CPU_Performance.GetRAMUsage();
+                var cpuUsage = Helper.CpuPerformance.GetCurrentCpuUsage();
+                var ramUsage = Helper.CpuPerformance.GetRamUsage();
 
-                Log._LogInformation("CPU Utilization of PrimeDNS is - " + cpuUsage, Logger.Logger.CStartUp, null);
-                Telemetry.Telemetry.PushCPUData(cpuUsage);
-                Log._LogInformation("RAM Usage of PrimeDNS is - " + ramUsage, Logger.Logger.CStartUp, null);
-                Telemetry.Telemetry.PushRAMData(ramUsage);
+                Log._LogInformation("CPU Utilization of PrimeDNS is - " + cpuUsage, Logger.Logger.ConstStartUp, null);
+                Telemetry.Telemetry.PushCpuData(cpuUsage);
+                Log._LogInformation("RAM Usage of PrimeDNS is - " + ramUsage, Logger.Logger.ConstStartUp, null);
+                Telemetry.Telemetry.PushRamData(ramUsage);
 
-                nextStartTimeOfMapUpdater = nextStartTimeOfMapUpdater + TimeSpan.FromSeconds(MapUpdater.MapUpdaterFrequencyInSeconds);
+                nextStartTimeOfMapUpdater += TimeSpan.FromSeconds(MapUpdater.MapUpdaterFrequencyInSeconds);
                 var delayMapUpdater = nextStartTimeOfMapUpdater - DateTimeOffset.UtcNow;
                 if (delayMapUpdater > TimeSpan.Zero)
                     await Task.Delay(delayMapUpdater);           
@@ -130,55 +138,17 @@
                 {
                     TtlUpdaterErrorCount = 0;
                     await TtlUpdater.UpdateTtl(nextStartTimeOfTtlUpdater);
-                    nextStartTimeOfTtlUpdater = nextStartTimeOfTtlUpdater + TimeSpan.FromSeconds(TimeToLiveUpdater.timeToLiveUpdaterFrequencyInSeconds);
+                    nextStartTimeOfTtlUpdater += TimeSpan.FromSeconds(TimeToLiveUpdater.TimeToLiveUpdaterFrequencyInSeconds);
                 }
                 if( (nextStartTimeOfWatcher <= nextStartTimeOfMapUpdater) && Config.IsDomainsUpdaterEnabled)
                 {
 
                     DomainsConfig.CallDomainsWatcher(nextStartTimeOfWatcher);
                     Config.CallAppConfigWatcher(nextStartTimeOfWatcher);
-                    nextStartTimeOfWatcher = nextStartTimeOfWatcher + TimeSpan.FromSeconds(Config.WatcherFrequencyInSeconds);
+                    nextStartTimeOfWatcher += TimeSpan.FromSeconds(Config.WatcherFrequencyInSeconds);
                 }
             }
         }
-
-        /*
-        private static void RunMapUpdaterWithCancellationEnabled(DateTimeOffset pT)
-        {
-            Task[] t = new Task[2]
-                {
-                    Map.MapUpdater.UpdateMap(pT),
-                    Task.Delay(new TimeSpan(0, 0, 300))
-                };
-
-            int index = Task.WaitAny(t);
-            if (index == 1)
-            {
-                CancellationTokenSource source = new CancellationTokenSource();
-                dnsResolverCancellationToken = source.Token;
-                source.Cancel();
-                t[0].Wait();
-            }      
-        }
-
-        private static void RunDomainsUpdaterWithCancellationEnabled(DateTimeOffset pT)
-        {
-            Task[] t = new Task[2]
-                {
-                    DomainsConfig.CallDomainsWatcher(pT),
-                    Task.Delay(new TimeSpan(0, 0, 300))
-                };
-
-            int index = Task.WaitAny(t[0], t[1]);
-            if(index == 1)
-            {
-                CancellationTokenSource source = new CancellationTokenSource();
-                dnsResolverCancellationToken = source.Token;
-                source.Cancel();
-                t[0].Wait();
-            }          
-        }
-        */
 
         /*
          * RunHostFileUpdater() runs an infinite loop that calls UpdateHostfile() repeatedly on a set frequency.
@@ -190,7 +160,7 @@
             {
                 HostFileUpdater.UpdateHostfile(nextStartTimeOfHostFileUpdater);
 
-                nextStartTimeOfHostFileUpdater = nextStartTimeOfHostFileUpdater + TimeSpan.FromSeconds(HostFileUpdater.HostFileUpdaterFrequencyInSeconds);
+                nextStartTimeOfHostFileUpdater += TimeSpan.FromSeconds(HostFileUpdater.HostFileUpdaterFrequencyInSeconds);
                 var delayHostFileUpdater = nextStartTimeOfHostFileUpdater - DateTimeOffset.UtcNow;
                 if (delayHostFileUpdater > TimeSpan.Zero)
                     await Task.Delay(delayHostFileUpdater);       

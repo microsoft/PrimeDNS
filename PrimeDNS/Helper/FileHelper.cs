@@ -1,4 +1,9 @@
-﻿namespace PrimeDNS.Helper
+﻿/* -----------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License.
+ * ----------------------------------------------------------------------- */
+
+namespace PrimeDNS.Helper
 {
     using System;
     using System.IO;
@@ -32,8 +37,8 @@
                     f.Close();
                 }
             }
-            int tries = 0;
-            bool flag = false;
+            var tries = 0;
+            var flag = false;
             while (tries < 3 && !flag)
             {
                 try
@@ -45,7 +50,7 @@
                 }
                 catch (AggregateException ae)
                 {
-                    PrimeDns.Log._LogError("Exception occured while inserting into Hostfile - ", Logger.Logger.CHostFileIntegrity, ae);
+                    PrimeDns.Log._LogError("Exception occured while inserting into Hosts file - ", Logger.Logger.ConstHostFileIntegrity, ae);
                     tries++;
                 }
             }            
@@ -54,7 +59,7 @@
 
         /*
          * RemoveLineFromFile function removes given line(string) from given file.
-         * Note: All occurances of this line (string) will be removed from the file. 
+         * Note: All occurence of this line (string) will be removed from the file. 
          */
         public static void RemoveLineFromFile(string pPath, string pLineToRemove)
         {

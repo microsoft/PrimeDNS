@@ -1,4 +1,9 @@
-﻿namespace PrimeDNS
+﻿/* -----------------------------------------------------------------------
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License.
+ * ----------------------------------------------------------------------- */
+
+namespace PrimeDNS
 {
     using System;
     using System.IO;
@@ -44,18 +49,18 @@
         public int ParallelDnsCallsLimit;
         public int ParallelTtlCallsLimit;
 
-        public const string CTableNamePrimeDnsMap = "PrimeDNSMap";
-        public const string CTableNamePrimeDnsState = "PrimeDNSState";
-        public const string CPrimeDnsSectionCreated = "PrimeDNSSectionCreated";
-        public const string CPrimeDnsMapCreated = "PrimeDNSMapCreated";
-        public const string CPrimeDnsCriticalDomainsUpdated = "PrimeDNSCriticalDomainsUpdated";
+        public const string ConstTableNamePrimeDnsMap = "PrimeDNSMap";
+        public const string ConstTableNamePrimeDnsState = "PrimeDNSState";
+        public const string ConstPrimeDnsSectionCreated = "PrimeDNSSectionCreated";
+        public const string ConstPrimeDnsMapCreated = "PrimeDNSMapCreated";
+        public const string ConstPrimeDnsCriticalDomainsUpdated = "PrimeDNSCriticalDomainsUpdated";
 
         public static IConfiguration Configuration { get; set; }
         public int GetConfig()
         {
             if (PrimeDns.PrimeDnsDataHome == null)
             {
-                PrimeDns.Log._LogInformation("PrimeDnsDataHome == null : Data Folder hasn't been entered, so using current folder as default", Logger.Logger.CStartUp, null);
+                PrimeDns.Log._LogInformation("PrimeDnsDataHome == null : Data Folder hasn't been entered, so using current folder as default", Logger.Logger.ConstStartUp, null);
                 PrimeDns.PrimeDnsDataHome = Directory.GetCurrentDirectory();
             }
             if (!Directory.Exists(PrimeDns.PrimeDnsDataHome))
@@ -115,13 +120,13 @@
 
         internal void CallAppConfigWatcher(DateTimeOffset time)
         {
-            PrimeDns.Log._LogInformation("AppConfig Watcher Started at Time : " + time.ToString(), Logger.Logger.CStartUp, null);
+            PrimeDns.Log._LogInformation("AppConfig Watcher Started at Time : " + time.ToString(), Logger.Logger.ConstStartUp, null);
             Telemetry.Telemetry.PushStatusOfThread("AppConfigWatcher", "Started");
             PrimeDns.Config.GetConfig();
             PrimeDns.HostFileUpdater.HostFileConfigUpdater();
             PrimeDns.MapUpdater.MapConfigUpdater();
             Telemetry.Telemetry.PushStatusOfThread("AppConfigWatcher", "Ended");
-            PrimeDns.Log._LogInformation("AppConfig Watcher Exited at Time : " + time.ToString(), Logger.Logger.CStartUp, null);
+            PrimeDns.Log._LogInformation("AppConfig Watcher Exited at Time : " + time.ToString(), Logger.Logger.ConstStartUp, null);
 
         }
 
@@ -130,7 +135,7 @@
          */
         public void ConfigChangeHandler(object source, FileSystemEventArgs e)
         {
-            PrimeDns.Log._LogInformation("CHANGE DETECTED IN APP CONFIG FILE!!!", Logger.Logger.CconfigWatcher, null);
+            PrimeDns.Log._LogInformation("CHANGE DETECTED IN APP CONFIG FILE!!!", Logger.Logger.ConstConfigWatcher, null);
             PrimeDns.Config.GetConfig();
             PrimeDns.HostFileUpdater.HostFileConfigUpdater();
             PrimeDns.MapUpdater.MapConfigUpdater();
