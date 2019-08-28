@@ -28,7 +28,7 @@ namespace PrimeDNS.Map
             _stateConnectionString = PrimeDns.Config.StateConnectionString;
             if(!File.Exists(PrimeDns.Config.MapDatabasePath))
             {
-                CreateAndInitializePrimeDnsState(0,0,0);
+                CreateAndInitializePrimeDnsState(0,0,0, 0);
             }
         }
 
@@ -84,6 +84,7 @@ namespace PrimeDNS.Map
             }
             CreateTable_PrimeDNSMap();
             MakePrimeDnsMapCreatedTrue();
+            MakePrimeDnsMapUpdatedTrue();
 
             var criticalDomains = PrimeDns.DomainsConfig.GetCriticalDomains();
             if (criticalDomains == null)
@@ -218,7 +219,7 @@ namespace PrimeDNS.Map
         }
 
         /*
-         * MakePrimeDnsMapCreatedTrue() sets the PrimeDNSMapCreated flag to true in PrimeDNSState Table.
+         * MakePrimeDnsMapCreatedTrue() sets the PrimeDnsMapCreated flag to true in PrimeDNSState Table.
          */
         private static void MakePrimeDnsMapCreatedTrue()
         {
@@ -236,9 +237,27 @@ namespace PrimeDNS.Map
         }
 
         /*
+         * MakePrimeDnsMapUpdatedTrue() sets the PrimeDnsMapUpdated flag to true in PrimeDNSState Table.
+         */
+        private static void MakePrimeDnsMapUpdatedTrue()
+        {
+            var updateCommand = "UPDATE " + AppConfig.ConstTableNamePrimeDnsState + " SET FlagValue=1" +
+                                $" WHERE FlagName=\"{AppConfig.ConstPrimeDnsMapUpdated}\"";
+            try
+            {
+                var numberOfRowsUpdated = SqliteConnect.ExecuteNonQuery(updateCommand, _stateConnectionString);
+                PrimeDns.Log._LogInformation("PrimeDNSState table updated - # of rows updated - " + numberOfRowsUpdated, Logger.ConstSqliteExecuteNonQuery, null);
+            }
+            catch (Exception error)
+            {
+                PrimeDns.Log._LogError("Error occured while updating PrimeDNSState table on Database", Logger.ConstSqliteExecuteNonQuery, error);
+            }
+        }
+
+        /*
          * CreateAndInitializePrimeDnsState() does exactly what it says. Initializes all flags in PrimeDNSState to false.
          */
-        internal static void CreateAndInitializePrimeDnsState(int pSectionCreatedFlag, int pMapCreatedFlag, int pCriticalDomainsUpdatedFlag)
+        internal static void CreateAndInitializePrimeDnsState(int pSectionCreatedFlag, int pMapCreatedFlag, int pCriticalDomainsUpdatedFlag, int pMapUpdatedFlag)
         {
             CreateTable_PrimeDNSState();
             var insertCommand = "Insert into " + AppConfig.ConstTableNamePrimeDnsState +
@@ -246,11 +265,11 @@ namespace PrimeDNS.Map
             try
             {
                 SqliteConnect.ExecuteNonQuery(insertCommand, _stateConnectionString);
-                PrimeDns.Log._LogInformation("Successfully Initialized PrimeDNSSectionCreated as False in the PrimeDNSState", Logger.ConstPrimeDnsStateIntegrity, null);
+                PrimeDns.Log._LogInformation("Successfully Initialized PrimeDNSSectionCreated in the PrimeDNSState", Logger.ConstPrimeDnsStateIntegrity, null);
             }
             catch (Exception error)
             {               
-                PrimeDns.Log._LogError("Error occured while Initializing PrimeDNSSectionCreated as False in the PrimeDNSState", Logger.ConstPrimeDnsStateIntegrity, error);
+                PrimeDns.Log._LogError("Error occured while Initializing PrimeDNSSectionCreated in the PrimeDNSState", Logger.ConstPrimeDnsStateIntegrity, error);
             }
 
             insertCommand = "Insert into " + AppConfig.ConstTableNamePrimeDnsState +
@@ -258,11 +277,11 @@ namespace PrimeDNS.Map
             try
             {
                 SqliteConnect.ExecuteNonQuery(insertCommand, _stateConnectionString);
-                PrimeDns.Log._LogInformation("Successfully Initialized PrimeDNSMapCreated as False in the PrimeDNSState", Logger.ConstPrimeDnsStateIntegrity, null);
+                PrimeDns.Log._LogInformation("Successfully Initialized PrimeDNSMapCreated in the PrimeDNSState", Logger.ConstPrimeDnsStateIntegrity, null);
             }
             catch (Exception error)
             {               
-                PrimeDns.Log._LogError("Error occured while Initializing PrimeDNSMapCreated as False in the PrimeDNSState", Logger.ConstPrimeDnsStateIntegrity, error);
+                PrimeDns.Log._LogError("Error occured while Initializing PrimeDNSMapCreated in the PrimeDNSState", Logger.ConstPrimeDnsStateIntegrity, error);
             }
 
             insertCommand = "Insert into " + AppConfig.ConstTableNamePrimeDnsState +
@@ -270,11 +289,24 @@ namespace PrimeDNS.Map
             try
             {
                 SqliteConnect.ExecuteNonQuery(insertCommand, _stateConnectionString);
-                PrimeDns.Log._LogInformation("Successfully Initialized PrimeDNSCriticalDomainsUpdated as False in the PrimeDNSState", Logger.ConstPrimeDnsStateIntegrity, null);
+                PrimeDns.Log._LogInformation("Successfully Initialized PrimeDNSCriticalDomainsUpdated in the PrimeDNSState", Logger.ConstPrimeDnsStateIntegrity, null);
             }
             catch (Exception error)
             {              
-                PrimeDns.Log._LogError("Error occured while Initializing PrimeDNSCriticalDomainsUpdated as False in the PrimeDNSState", Logger.ConstPrimeDnsStateIntegrity, error);
+                PrimeDns.Log._LogError("Error occured while Initializing PrimeDNSCriticalDomainsUpdated in the PrimeDNSState", Logger.ConstPrimeDnsStateIntegrity, error);
+
+            }
+
+            insertCommand = "Insert into " + AppConfig.ConstTableNamePrimeDnsState +
+                            $" values (\"{AppConfig.ConstPrimeDnsMapUpdated}\", {pMapUpdatedFlag})";
+            try
+            {
+                SqliteConnect.ExecuteNonQuery(insertCommand, _stateConnectionString);
+                PrimeDns.Log._LogInformation("Successfully Initialized PrimeDNSMapUpdated in the PrimeDNSState", Logger.ConstPrimeDnsStateIntegrity, null);
+            }
+            catch (Exception error)
+            {
+                PrimeDns.Log._LogError("Error occured while Initializing PrimeDNSMapUpdated in the PrimeDNSState", Logger.ConstPrimeDnsStateIntegrity, error);
 
             }
         }
@@ -296,7 +328,7 @@ namespace PrimeDNS.Map
             using (var connection = new SqliteConnection(_mapConnectionString))
             {
                 connection.Open();
-                CancellationTokenSource source = new CancellationTokenSource();
+                var source = new CancellationTokenSource();
                 PrimeDns.DnsResolverCancellationToken = source.Token;
                 using (var c = new SqliteCommand(selectCommand, connection))
                 {
@@ -304,7 +336,7 @@ namespace PrimeDNS.Map
                     {
                         while (query.Read())
                         {
-                            DateTime d = query.GetDateTime(3).AddSeconds(query.GetInt32(4) + PrimeDns.Config.TimeToLiveThresholdInSeconds);
+                            var d = query.GetDateTime(3).AddSeconds(query.GetInt32(4) + PrimeDns.Config.TimeToLiveThresholdInSeconds);
                             if (d > DateTime.Now)
                             {
                                 continue;
@@ -377,6 +409,7 @@ namespace PrimeDNS.Map
                     }
                 }
                 tasks.Clear();
+                MakePrimeDnsMapUpdatedTrue();
             }
 
             if (hostNamesToBeDeleted.Count > 0)

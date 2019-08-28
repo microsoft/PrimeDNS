@@ -41,7 +41,7 @@ namespace PrimeDNS.HostFile
          */
         internal void UpdateHostfile(DateTimeOffset time)
         {
-            
+            if (!SqliteConnect.CheckPrimeDnsState(AppConfig.ConstPrimeDnsMapUpdated)) return;
             PrimeDns.Log._LogInformation("Host File Updater Started at Time : " + time.ToString(), Logger.ConstStartUp, null);
             Telemetry.Telemetry.PushStatusOfThread("HostFileUpdater", "Started");
             if (!SqliteConnect.CheckPrimeDnsState(AppConfig.ConstPrimeDnsSectionCreated))

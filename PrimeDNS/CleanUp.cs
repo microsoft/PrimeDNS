@@ -28,7 +28,7 @@ namespace PrimeDNS
             PrimeDns.HostFileUpdater.RemoveOldPrimeDnsSectionEntries(PrimeDns.Config.HostFilePath);
             Helper.FileHelper.RemoveLineFromFile(PrimeDns.Config.HostFilePath, PrimeDns.Config.PrimeDnsSectionBeginString);
             Helper.FileHelper.RemoveLineFromFile(PrimeDns.Config.HostFilePath, PrimeDns.Config.PrimeDnsSectionEndString);
-            MapUpdater.CreateAndInitializePrimeDnsState(0, 0, 0);
+            MapUpdater.CreateAndInitializePrimeDnsState(0, 0, 0, 0);
 
             //PrimeDns.semaphore.Release();
 
