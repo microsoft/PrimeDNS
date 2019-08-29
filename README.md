@@ -35,6 +35,9 @@ PrimeDNS is a DNS caching service that helps the user to continually maintain la
 		```
 	- This will help your team to maintain your own personalized config files that won't get overwritten with every update to PrimeDNS.
 
+# Important 
+
+Once you stop PrimeDns from running, you need to clear the PrimeDns section from hosts file as otherwise the last PrimeDns section written to your host will remain there forever? :no_mouth: 
 
 # Contributing
 
