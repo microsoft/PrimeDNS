@@ -212,6 +212,7 @@ namespace PrimeDNS
             }
             if (tasks.Count > 0)
             {
+                var isMapUpdated = false;
                 foreach (var (item1, item2) in await Task.WhenAll(tasks))
                 {
                     if (item2)
@@ -230,7 +231,8 @@ namespace PrimeDNS
                             PrimeDns.Log._LogInformation("Added the New Domain to PrimeDNSMap " + item1.HostName, Logger.Logger.ConstDomainsWatcher, null);
                         }
                         MapUpdater.WriteToPrimeDnsMap(item1);
-                        IsDomainCritical.Add(item1.HostName, true);                     
+                        IsDomainCritical.Add(item1.HostName, true);
+                        isMapUpdated = true;
                         //Console.WriteLine("Ending Dns Resolver {0}", task.Item1.HostName);
                     }
                     else
@@ -248,7 +250,8 @@ namespace PrimeDNS
                     }
                 }
                 tasks.Clear();
-                MapUpdater.MakePrimeDnsMapUpdatedTrue();
+                if(isMapUpdated)
+                    MapUpdater.MakePrimeDnsMapUpdatedTrue();
             }
         }
 
