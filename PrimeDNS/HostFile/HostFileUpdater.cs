@@ -41,7 +41,7 @@ namespace PrimeDNS.HostFile
          */
         internal void UpdateHostfile(DateTimeOffset time)
         {
-            
+            if (!SqliteConnect.CheckPrimeDnsState(AppConfig.ConstPrimeDnsMapUpdated)) return;
             PrimeDns.Log._LogInformation("Host File Updater Started at Time : " + time.ToString(), Logger.ConstStartUp, null);
             Telemetry.Telemetry.PushStatusOfThread("HostFileUpdater", "Started");
             if (!SqliteConnect.CheckPrimeDnsState(AppConfig.ConstPrimeDnsSectionCreated))
@@ -76,9 +76,27 @@ namespace PrimeDNS.HostFile
             }
             Telemetry.Telemetry.PushStatusOfThread("HostFileUpdater", "Ended");
             PrimeDns.Log._LogInformation("Host File Updater Ended at Time : " + time.ToString(), Logger.ConstStartUp, null);
-
+            MakePrimeDnsMapUpdatedFalse();
             GC.Collect();
             GC.WaitForPendingFinalizers();
+        }
+
+        /*
+        * MakePrimeDnsMapUpdatedFalse() sets the PrimeDnsMapUpdated flag to true in PrimeDNSState Table.
+        */
+        private static void MakePrimeDnsMapUpdatedFalse()
+        {
+            var updateCommand = "UPDATE " + AppConfig.ConstTableNamePrimeDnsState + " SET FlagValue=0" +
+                                $" WHERE FlagName=\"{AppConfig.ConstPrimeDnsMapUpdated}\"";
+            try
+            {
+                var numberOfRowsUpdated = SqliteConnect.ExecuteNonQuery(updateCommand, _stateConnectionString);
+                PrimeDns.Log._LogInformation("PrimeDNSState table updated - # of rows updated - " + numberOfRowsUpdated, Logger.ConstSqliteExecuteNonQuery, null);
+            }
+            catch (Exception error)
+            {
+                PrimeDns.Log._LogError("Error occured while updating PrimeDNSState table on Database", Logger.ConstSqliteExecuteNonQuery, error);
+            }
         }
 
         /*

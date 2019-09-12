@@ -49,11 +49,12 @@ namespace PrimeDNS
         public int ParallelDnsCallsLimit;
         public int ParallelTtlCallsLimit;
 
-        public const string ConstTableNamePrimeDnsMap = "PrimeDNSMap";
-        public const string ConstTableNamePrimeDnsState = "PrimeDNSState";
-        public const string ConstPrimeDnsSectionCreated = "PrimeDNSSectionCreated";
-        public const string ConstPrimeDnsMapCreated = "PrimeDNSMapCreated";
-        public const string ConstPrimeDnsCriticalDomainsUpdated = "PrimeDNSCriticalDomainsUpdated";
+        public const string ConstTableNamePrimeDnsMap = "PrimeDnsMap";
+        public const string ConstTableNamePrimeDnsState = "PrimeDnsState";
+        public const string ConstPrimeDnsSectionCreated = "PrimeDnsSectionCreated";
+        public const string ConstPrimeDnsMapCreated = "PrimeDnsMapCreated";
+        public const string ConstPrimeDnsCriticalDomainsUpdated = "PrimeDnsCriticalDomainsUpdated";
+        public const string ConstPrimeDnsMapUpdated = "PrimeDnsMapUpdated";
 
         public static IConfiguration Configuration { get; set; }
         public int GetConfig()

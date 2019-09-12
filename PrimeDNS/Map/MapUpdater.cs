@@ -28,7 +28,7 @@ namespace PrimeDNS.Map
             _stateConnectionString = PrimeDns.Config.StateConnectionString;
             if(!File.Exists(PrimeDns.Config.MapDatabasePath))
             {
-                CreateAndInitializePrimeDnsState(0,0,0);
+                CreateAndInitializePrimeDnsState(0,0,0, 0);
             }
         }
 
@@ -84,6 +84,7 @@ namespace PrimeDNS.Map
             }
             CreateTable_PrimeDNSMap();
             MakePrimeDnsMapCreatedTrue();
+            MakePrimeDnsMapUpdatedTrue();
 
             var criticalDomains = PrimeDns.DomainsConfig.GetCriticalDomains();
             if (criticalDomains == null)
@@ -133,24 +134,24 @@ namespace PrimeDNS.Map
 
             if (tasks.Count > 0)
             {
-                foreach (var task in await Task.WhenAll(tasks))
+                foreach (var (item1, item2) in await Task.WhenAll(tasks))
                 {
-                    if (task.Item2)
+                    if (item2)
                     {
-                        WriteToPrimeDnsMap(task.Item1);
+                        WriteToPrimeDnsMap(item1);
                         //Console.WriteLine("Ending Dns Resolver {0}", task.Item1.HostName);
                     }
                     else
                     {
-                        PrimeDns.Log._LogInformation("Failure in adding New Domain to PrimeDNSMap " + task.Item1.HostName, Logger.ConstDomainsWatcher, null);
+                        PrimeDns.Log._LogInformation("Failure in adding New Domain to PrimeDNSMap " + item1.HostName, Logger.ConstDomainsWatcher, null);
                         try
                         {
-                            if (!PrimeDns.DomainsConfig.DomainYetToBeAddedToMap[task.Item1.HostName])
-                                PrimeDns.DomainsConfig.DomainYetToBeAddedToMap[task.Item1.HostName] = true;
+                            if (!PrimeDns.DomainsConfig.DomainYetToBeAddedToMap[item1.HostName])
+                                PrimeDns.DomainsConfig.DomainYetToBeAddedToMap[item1.HostName] = true;
                         }
                         catch (KeyNotFoundException)
                         {
-                            PrimeDns.DomainsConfig.DomainYetToBeAddedToMap.Add(task.Item1.HostName, true);
+                            PrimeDns.DomainsConfig.DomainYetToBeAddedToMap.Add(item1.HostName, true);
                         }
                     }
                 }
@@ -218,7 +219,7 @@ namespace PrimeDNS.Map
         }
 
         /*
-         * MakePrimeDnsMapCreatedTrue() sets the PrimeDNSMapCreated flag to true in PrimeDNSState Table.
+         * MakePrimeDnsMapCreatedTrue() sets the PrimeDnsMapCreated flag to true in PrimeDNSState Table.
          */
         private static void MakePrimeDnsMapCreatedTrue()
         {
@@ -236,9 +237,27 @@ namespace PrimeDNS.Map
         }
 
         /*
+         * MakePrimeDnsMapUpdatedTrue() sets the PrimeDnsMapUpdated flag to true in PrimeDNSState Table.
+         */
+        public static void MakePrimeDnsMapUpdatedTrue()
+        {
+            var updateCommand = "UPDATE " + AppConfig.ConstTableNamePrimeDnsState + " SET FlagValue=1" +
+                                $" WHERE FlagName=\"{AppConfig.ConstPrimeDnsMapUpdated}\"";
+            try
+            {
+                var numberOfRowsUpdated = SqliteConnect.ExecuteNonQuery(updateCommand, _stateConnectionString);
+                PrimeDns.Log._LogInformation("PrimeDNSState table updated - # of rows updated - " + numberOfRowsUpdated, Logger.ConstSqliteExecuteNonQuery, null);
+            }
+            catch (Exception error)
+            {
+                PrimeDns.Log._LogError("Error occured while updating PrimeDNSState table on Database", Logger.ConstSqliteExecuteNonQuery, error);
+            }
+        }
+
+        /*
          * CreateAndInitializePrimeDnsState() does exactly what it says. Initializes all flags in PrimeDNSState to false.
          */
-        internal static void CreateAndInitializePrimeDnsState(int pSectionCreatedFlag, int pMapCreatedFlag, int pCriticalDomainsUpdatedFlag)
+        internal static void CreateAndInitializePrimeDnsState(int pSectionCreatedFlag, int pMapCreatedFlag, int pCriticalDomainsUpdatedFlag, int pMapUpdatedFlag)
         {
             CreateTable_PrimeDNSState();
             var insertCommand = "Insert into " + AppConfig.ConstTableNamePrimeDnsState +
@@ -246,11 +265,11 @@ namespace PrimeDNS.Map
             try
             {
                 SqliteConnect.ExecuteNonQuery(insertCommand, _stateConnectionString);
-                PrimeDns.Log._LogInformation("Successfully Initialized PrimeDNSSectionCreated as False in the PrimeDNSState", Logger.ConstPrimeDnsStateIntegrity, null);
+                PrimeDns.Log._LogInformation("Successfully Initialized PrimeDNSSectionCreated in the PrimeDNSState", Logger.ConstPrimeDnsStateIntegrity, null);
             }
             catch (Exception error)
             {               
-                PrimeDns.Log._LogError("Error occured while Initializing PrimeDNSSectionCreated as False in the PrimeDNSState", Logger.ConstPrimeDnsStateIntegrity, error);
+                PrimeDns.Log._LogError("Error occured while Initializing PrimeDNSSectionCreated in the PrimeDNSState", Logger.ConstPrimeDnsStateIntegrity, error);
             }
 
             insertCommand = "Insert into " + AppConfig.ConstTableNamePrimeDnsState +
@@ -258,11 +277,11 @@ namespace PrimeDNS.Map
             try
             {
                 SqliteConnect.ExecuteNonQuery(insertCommand, _stateConnectionString);
-                PrimeDns.Log._LogInformation("Successfully Initialized PrimeDNSMapCreated as False in the PrimeDNSState", Logger.ConstPrimeDnsStateIntegrity, null);
+                PrimeDns.Log._LogInformation("Successfully Initialized PrimeDNSMapCreated in the PrimeDNSState", Logger.ConstPrimeDnsStateIntegrity, null);
             }
             catch (Exception error)
             {               
-                PrimeDns.Log._LogError("Error occured while Initializing PrimeDNSMapCreated as False in the PrimeDNSState", Logger.ConstPrimeDnsStateIntegrity, error);
+                PrimeDns.Log._LogError("Error occured while Initializing PrimeDNSMapCreated in the PrimeDNSState", Logger.ConstPrimeDnsStateIntegrity, error);
             }
 
             insertCommand = "Insert into " + AppConfig.ConstTableNamePrimeDnsState +
@@ -270,11 +289,24 @@ namespace PrimeDNS.Map
             try
             {
                 SqliteConnect.ExecuteNonQuery(insertCommand, _stateConnectionString);
-                PrimeDns.Log._LogInformation("Successfully Initialized PrimeDNSCriticalDomainsUpdated as False in the PrimeDNSState", Logger.ConstPrimeDnsStateIntegrity, null);
+                PrimeDns.Log._LogInformation("Successfully Initialized PrimeDNSCriticalDomainsUpdated in the PrimeDNSState", Logger.ConstPrimeDnsStateIntegrity, null);
             }
             catch (Exception error)
             {              
-                PrimeDns.Log._LogError("Error occured while Initializing PrimeDNSCriticalDomainsUpdated as False in the PrimeDNSState", Logger.ConstPrimeDnsStateIntegrity, error);
+                PrimeDns.Log._LogError("Error occured while Initializing PrimeDNSCriticalDomainsUpdated in the PrimeDNSState", Logger.ConstPrimeDnsStateIntegrity, error);
+
+            }
+
+            insertCommand = "Insert into " + AppConfig.ConstTableNamePrimeDnsState +
+                            $" values (\"{AppConfig.ConstPrimeDnsMapUpdated}\", {pMapUpdatedFlag})";
+            try
+            {
+                SqliteConnect.ExecuteNonQuery(insertCommand, _stateConnectionString);
+                PrimeDns.Log._LogInformation("Successfully Initialized PrimeDNSMapUpdated in the PrimeDNSState", Logger.ConstPrimeDnsStateIntegrity, null);
+            }
+            catch (Exception error)
+            {
+                PrimeDns.Log._LogError("Error occured while Initializing PrimeDNSMapUpdated in the PrimeDNSState", Logger.ConstPrimeDnsStateIntegrity, error);
 
             }
         }
@@ -296,7 +328,7 @@ namespace PrimeDNS.Map
             using (var connection = new SqliteConnection(_mapConnectionString))
             {
                 connection.Open();
-                CancellationTokenSource source = new CancellationTokenSource();
+                var source = new CancellationTokenSource();
                 PrimeDns.DnsResolverCancellationToken = source.Token;
                 using (var c = new SqliteCommand(selectCommand, connection))
                 {
@@ -304,7 +336,7 @@ namespace PrimeDNS.Map
                     {
                         while (query.Read())
                         {
-                            DateTime d = query.GetDateTime(3).AddSeconds(query.GetInt32(4) + PrimeDns.Config.TimeToLiveThresholdInSeconds);
+                            var d = query.GetDateTime(3).AddSeconds(query.GetInt32(4) + PrimeDns.Config.TimeToLiveThresholdInSeconds);
                             if (d > DateTime.Now)
                             {
                                 continue;
@@ -364,11 +396,13 @@ namespace PrimeDNS.Map
 
             if (tasks.Count > 0)
             {
+                var isMapUpdated = false;
                 foreach (var (item1, item2) in await Task.WhenAll(tasks) )
                 {
                     if (item2)
                     {
                         UpdatePrimeDnsMapRow(item1);
+                        isMapUpdated = true;
                         //Console.WriteLine("Ending Dns Resolver {0}", task.Item1.HostName);
                     }
                     else
@@ -377,6 +411,8 @@ namespace PrimeDNS.Map
                     }
                 }
                 tasks.Clear();
+                if(isMapUpdated)
+                    MakePrimeDnsMapUpdatedTrue();
             }
 
             if (hostNamesToBeDeleted.Count > 0)
@@ -386,6 +422,7 @@ namespace PrimeDNS.Map
                     DeletePrimeDnsMapRow(s);
                 }
                 hostNamesToBeDeleted.Clear();
+                MakePrimeDnsMapUpdatedTrue();
             }
             PrimeDns.Log._LogInformation("Updated PrimeDNSMap table successfully", Logger.ConstSqliteExecuteNonQuery, null);
 
