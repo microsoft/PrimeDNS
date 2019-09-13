@@ -36,5 +36,11 @@ namespace PrimeDNS.Telemetry
             if (PrimeDns.Config.LogTelemetryEnabled)
                 LogConnect.PushRamUtilizationToLog(pRam);
         }
+
+        public static void PushHostfileWrites()
+        {
+            if (PrimeDns.Config.LogTelemetryEnabled)
+                LogConnect.PushHostfileWritesToLog();
+        }
     }
 }

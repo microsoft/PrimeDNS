@@ -41,6 +41,7 @@ namespace PrimeDNS.HostFile
          */
         internal void UpdateHostfile(DateTimeOffset time)
         {
+            Telemetry.Telemetry.PushStatusOfThread("HostFileUpdater", "ThreadRunning");
             if (!SqliteConnect.CheckPrimeDnsState(AppConfig.ConstPrimeDnsMapUpdated)) return;
             PrimeDns.Log._LogInformation("Host File Updater Started at Time : " + time.ToString(), Logger.ConstStartUp, null);
             Telemetry.Telemetry.PushStatusOfThread("HostFileUpdater", "Started");
@@ -77,6 +78,7 @@ namespace PrimeDNS.HostFile
             Telemetry.Telemetry.PushStatusOfThread("HostFileUpdater", "Ended");
             PrimeDns.Log._LogInformation("Host File Updater Ended at Time : " + time.ToString(), Logger.ConstStartUp, null);
             MakePrimeDnsMapUpdatedFalse();
+            Telemetry.Telemetry.PushHostfileWrites();
             GC.Collect();
             GC.WaitForPendingFinalizers();
         }
