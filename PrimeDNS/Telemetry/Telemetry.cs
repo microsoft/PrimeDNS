@@ -3,8 +3,6 @@
  * Licensed under the MIT License.
  * ----------------------------------------------------------------------- */
 
-using System.Net.NetworkInformation;
-
 namespace PrimeDNS.Telemetry
 {
     internal class Telemetry
