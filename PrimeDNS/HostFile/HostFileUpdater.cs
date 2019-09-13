@@ -77,6 +77,7 @@ namespace PrimeDNS.HostFile
             Telemetry.Telemetry.PushStatusOfThread("HostFileUpdater", "Ended");
             PrimeDns.Log._LogInformation("Host File Updater Ended at Time : " + time.ToString(), Logger.ConstStartUp, null);
             MakePrimeDnsMapUpdatedFalse();
+            Telemetry.Telemetry.PushHostfileWrites();
             GC.Collect();
             GC.WaitForPendingFinalizers();
         }

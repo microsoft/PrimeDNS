@@ -3,6 +3,8 @@
  * Licensed under the MIT License.
  * ----------------------------------------------------------------------- */
 
+using System.Net.NetworkInformation;
+
 namespace PrimeDNS.Telemetry
 {
     internal class Telemetry
@@ -35,6 +37,12 @@ namespace PrimeDNS.Telemetry
         {
             if (PrimeDns.Config.LogTelemetryEnabled)
                 LogConnect.PushRamUtilizationToLog(pRam);
+        }
+
+        public static void PushHostfileWrites()
+        {
+            if (PrimeDns.Config.LogTelemetryEnabled)
+                LogConnect.PushHostfileWritesToLog();
         }
     }
 }

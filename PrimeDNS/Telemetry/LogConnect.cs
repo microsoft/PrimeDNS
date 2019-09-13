@@ -13,6 +13,7 @@ namespace PrimeDNS.Telemetry
         private const int CMetricDnsCalls = 2;
         private const int CThreadStatus = 3;
         private const int CPerf = 4;
+        private const int CNumberOfHostfileWrites = 5;
 
         private static readonly ILoggerFactory LoggerFactory = new LoggerFactory()
                 .AddFile("Telemetry_Logs/PrimeDns-Telemetry-{Date}.txt");
@@ -41,6 +42,11 @@ namespace PrimeDNS.Telemetry
         public static void PushRamUtilizationToLog(float pRamUtilization)
         {
             Logger.LogInformation("|1|RAM|" + pRamUtilization, CPerf, null);
+        }
+
+        public static void PushHostfileWritesToLog()
+        {
+            Logger.LogInformation("|1|Hostfile Writes|1|", CNumberOfHostfileWrites, null);
         }
     }
 }
