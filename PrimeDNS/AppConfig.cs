@@ -35,6 +35,7 @@ namespace PrimeDNS
         public bool AppConfigWatcherEnabled;
         public bool IsPrimeDnsEnabled;
         public bool LogTelemetryEnabled;
+        public bool IsTelemetryLite;
         public bool IsInformationLogEnabled;
         public bool IsWarningLogEnabled;
         public bool IsTtlUpdaterEnabled;
@@ -48,6 +49,9 @@ namespace PrimeDNS
         public int TtlUpdaterErrorLimit;
         public int ParallelDnsCallsLimit;
         public int ParallelTtlCallsLimit;
+
+        public int PerfRamThreshold;
+        public int PerfCpuThreshold;
 
         public const string ConstTableNamePrimeDnsMap = "PrimeDnsMap";
         public const string ConstTableNamePrimeDnsState = "PrimeDnsState";
@@ -85,9 +89,13 @@ namespace PrimeDNS
             ParallelDnsCallsLimit = Convert.ToInt32(Configuration["ParallelDnsCallsLimit"]);
             ParallelTtlCallsLimit = Convert.ToInt32(Configuration["ParallelTtlCallsLimit"]);
 
+            PerfRamThreshold = Convert.ToInt32(Configuration["PerfRamThreshold"]);
+            PerfCpuThreshold = Convert.ToInt32(Configuration["PerfCpuThreshold"]);
+
             DnsResolver = Configuration["DnsResolver"];           
 
             LogTelemetryEnabled = Convert.ToBoolean(Configuration["LogTelemetryEnabled"]);
+            IsTelemetryLite = Convert.ToBoolean(Configuration["IsTelemetryLite"]);
 
             IsInformationLogEnabled = Convert.ToBoolean(Configuration["IsInformationLogEnabled"]);
             IsWarningLogEnabled = Convert.ToBoolean(Configuration["IsWarningLogEnabled"]);
