@@ -21,7 +21,7 @@ namespace PrimeDNS.Telemetry
                 LogConnect.PushDnsCallsDataToLog(pDomainName, pStatus, pType, pNewIpAdded, pOldIpRemoved, pErrorMessage);
             else if (pStatus == "Failure")
                 LogConnect.PushDnsCallsDataToLog(pDomainName, pStatus, pType, pNewIpAdded, pOldIpRemoved, pErrorMessage);
-            else if (pStatus == "Success" && pErrorMessage != "Success")
+            else if (pStatus == "Success" && pErrorMessage != "SUCCESS")
                 LogConnect.PushDnsCallsDataToLog(pDomainName, pStatus, pType, pNewIpAdded, pOldIpRemoved, pErrorMessage);
         }
 
