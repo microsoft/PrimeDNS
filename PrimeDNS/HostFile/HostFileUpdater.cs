@@ -41,8 +41,7 @@ namespace PrimeDNS.HostFile
          */
         internal void UpdateHostfile(DateTimeOffset time)
         {
-            Telemetry.Telemetry.PushStatusOfThread("HostFileUpdater", "ThreadRunning");
-            if (!SqliteConnect.CheckPrimeDnsState(AppConfig.ConstPrimeDnsMapUpdated)) return;
+            
             PrimeDns.Log._LogInformation("Host File Updater Started at Time : " + time.ToString(), Logger.ConstStartUp, null);
             Telemetry.Telemetry.PushStatusOfThread("HostFileUpdater", "Started");
             if (!SqliteConnect.CheckPrimeDnsState(AppConfig.ConstPrimeDnsSectionCreated))
@@ -51,7 +50,7 @@ namespace PrimeDNS.HostFile
                 MakePrimeDnsSectionCreatedTrue();
             }
             var isPrimeDnsSectionOkay = IntegrityChecker.CheckPrimeDnsSectionIntegrity(PrimeDns.Config.HostFilePath);
-            if (isPrimeDnsSectionOkay)
+            if (isPrimeDnsSectionOkay && SqliteConnect.CheckPrimeDnsState(AppConfig.ConstPrimeDnsMapUpdated))
             {                
                 try
                 {
@@ -61,6 +60,8 @@ namespace PrimeDNS.HostFile
                     FindPrimeDnsSectionBegin(hostfilePath);
                     if (PrimeDnsBeginLine >= 0)
                         FileHelper.InsertIntoFile(hostfilePath, newPrimeDnsSectionEntries, PrimeDnsBeginLine + 1);
+                    MakePrimeDnsMapUpdatedFalse();
+                    Telemetry.Telemetry.PushHostfileWrites();
                 }
                 catch(IOException ioe)
                 {
@@ -68,7 +69,7 @@ namespace PrimeDNS.HostFile
                     Telemetry.Telemetry.PushStatusOfThread("HostFileUpdater", "Failed");
                 }                     
             }
-            else
+            else if(!isPrimeDnsSectionOkay && SqliteConnect.CheckPrimeDnsState(AppConfig.ConstPrimeDnsMapUpdated))
             {
                 FileHelper.RemoveLineFromFile(PrimeDns.Config.HostFilePath, PrimeDns.Config.PrimeDnsSectionBeginString);
                 FileHelper.RemoveLineFromFile(PrimeDns.Config.HostFilePath, PrimeDns.Config.PrimeDnsSectionEndString);
@@ -76,9 +77,7 @@ namespace PrimeDNS.HostFile
                 PrimeDns.Log._LogWarning("CheckPrimeDnsSectionIntegrity FAILED!!, Continuing..",Logger.ConstHostFileIntegrity,null);
             }
             Telemetry.Telemetry.PushStatusOfThread("HostFileUpdater", "Ended");
-            PrimeDns.Log._LogInformation("Host File Updater Ended at Time : " + time.ToString(), Logger.ConstStartUp, null);
-            MakePrimeDnsMapUpdatedFalse();
-            Telemetry.Telemetry.PushHostfileWrites();
+            PrimeDns.Log._LogInformation("Host File Updater Ended at Time : " + time.ToString(), Logger.ConstStartUp, null);           
             GC.Collect();
             GC.WaitForPendingFinalizers();
         }
