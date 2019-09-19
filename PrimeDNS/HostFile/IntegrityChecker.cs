@@ -28,6 +28,11 @@ namespace PrimeDNS.HostFile
                     PrimeDns.Log._LogWarning("###---PrimeDNS-BEGIN-SECTION appearing before ###---PrimeDNS-END-SECTION", Logger.ConstHostFileIntegrity, null);
                     return false;
                 }
+                else if (startPosition < 0 && endPosition < 0)
+                {
+                    PrimeDns.Log._LogWarning("PrimeDNS section missing!", Logger.ConstHostFileIntegrity, null);
+                    return true;
+                }
                 else if (!(startPosition >= 0 && endPosition >= 0))
                 {
                     PrimeDns.Log._LogWarning("###---PrimeDNS-BEGIN-SECTION or ###---PrimeDNS-END-SECTION missing!", Logger.ConstHostFileIntegrity, null);
