@@ -251,7 +251,7 @@ namespace PrimeDNS
                 }
                 tasks.Clear();
                 if(isMapUpdated)
-                    MapUpdater.MakePrimeDnsMapUpdatedTrue();
+                    MapUpdater.UpdatePrimeDnsState(AppConfig.ConstPrimeDnsMapUpdated, 1);
             }
         }
 
