@@ -12,6 +12,7 @@ namespace PrimeDNS.HostFile
     using Helper;  
     using SQLite;
     using Microsoft.Data.Sqlite;
+    using PrimeDNS.Map;
 
     internal class HostFileUpdater
     {
@@ -48,7 +49,7 @@ namespace PrimeDNS.HostFile
             {
                 CreatePrimeDnsSection();
                 Telemetry.Telemetry.PushHostfileWrites();
-                MakePrimeDnsSectionCreatedTrue();
+                MapUpdater.UpdatePrimeDnsState(AppConfig.ConstPrimeDnsSectionCreated, 1);
             }
             var isPrimeDnsSectionOkay = IntegrityChecker.CheckPrimeDnsSectionIntegrity(PrimeDns.Config.HostFilePath);
             var isMapUpdated = SqliteConnect.CheckPrimeDnsState(AppConfig.ConstPrimeDnsMapUpdated);
@@ -64,8 +65,8 @@ namespace PrimeDNS.HostFile
                     FindPrimeDnsSectionBegin(hostfilePath);
                     if (PrimeDnsBeginLine >= 0)
                         FileHelper.InsertIntoFile(hostfilePath, newPrimeDnsSectionEntries, PrimeDnsBeginLine + 1);
-                    MakePrimeDnsMapUpdatedFalse();
-                    MakePrimeDnsHostFileUpdatedFromOutsideFalse();
+                    MapUpdater.UpdatePrimeDnsState(AppConfig.ConstPrimeDnsMapUpdated, 0);
+                    MapUpdater.UpdatePrimeDnsState(AppConfig.ConstPrimeDnsHostFileUpdatedFromOutside, 0);
                     Telemetry.Telemetry.PushHostfileWrites();
                 }
                 catch(IOException ioe)
@@ -80,7 +81,7 @@ namespace PrimeDNS.HostFile
                 FileHelper.RemoveLineFromFile(PrimeDns.Config.HostFilePath, PrimeDns.Config.PrimeDnsSectionEndString);
                 CreatePrimeDnsSection();
                 Telemetry.Telemetry.PushHostfileWrites();
-                MakePrimeDnsHostFileUpdatedFromOutsideTrue();
+                MapUpdater.UpdatePrimeDnsState(AppConfig.ConstPrimeDnsHostFileUpdatedFromOutside, 1);
                 PrimeDns.Log._LogWarning("CheckPrimeDnsSectionIntegrity FAILED!!, Continuing..",Logger.ConstHostFileIntegrity,null);
             }
             Telemetry.Telemetry.PushStatusOfThread("HostFileUpdater", "Ended");
@@ -88,60 +89,6 @@ namespace PrimeDNS.HostFile
             
             GC.Collect();
             GC.WaitForPendingFinalizers();
-        }
-
-        /*
-        * MakePrimeDnsMapUpdatedFalse() sets the PrimeDnsMapUpdated flag to false in PrimeDNSState Table.
-        */
-        private static void MakePrimeDnsMapUpdatedFalse()
-        {
-            var updateCommand = "UPDATE " + AppConfig.ConstTableNamePrimeDnsState + " SET FlagValue=0" +
-                                $" WHERE FlagName=\"{AppConfig.ConstPrimeDnsMapUpdated}\"";
-            try
-            {
-                var numberOfRowsUpdated = SqliteConnect.ExecuteNonQuery(updateCommand, _stateConnectionString);
-                PrimeDns.Log._LogInformation("PrimeDNSState table updated - # of rows updated - " + numberOfRowsUpdated, Logger.ConstSqliteExecuteNonQuery, null);
-            }
-            catch (Exception error)
-            {
-                PrimeDns.Log._LogError("Error occured while updating PrimeDNSState table on Database", Logger.ConstSqliteExecuteNonQuery, error);
-            }
-        }
-
-        /*
-        * MakePrimeDnsHostFileUpdatedFromOutsideFalse() sets the PrimeDnsHostFileUpdatedFromOutside flag to false in PrimeDNSState Table.
-        */
-        private static void MakePrimeDnsHostFileUpdatedFromOutsideFalse()
-        {
-            var updateCommand = "UPDATE " + AppConfig.ConstTableNamePrimeDnsState + " SET FlagValue=0" +
-                                $" WHERE FlagName=\"{AppConfig.ConstPrimeDnsHostFileUpdatedFromOutside}\"";
-            try
-            {
-                var numberOfRowsUpdated = SqliteConnect.ExecuteNonQuery(updateCommand, _stateConnectionString);
-                PrimeDns.Log._LogInformation("PrimeDNSState table updated - # of rows updated - " + numberOfRowsUpdated, Logger.ConstSqliteExecuteNonQuery, null);
-            }
-            catch (Exception error)
-            {
-                PrimeDns.Log._LogError("Error occured while updating PrimeDNSState table on Database", Logger.ConstSqliteExecuteNonQuery, error);
-            }
-        }
-
-        /*
-       * MakePrimeDnsHostFileUpdatedFromOutsideTrue() sets the PrimeDnsHostFileUpdatedFromOutside flag to true in PrimeDNSState Table.
-       */
-        private static void MakePrimeDnsHostFileUpdatedFromOutsideTrue()
-        {
-            var updateCommand = "UPDATE " + AppConfig.ConstTableNamePrimeDnsState + " SET FlagValue=1" +
-                                $" WHERE FlagName=\"{AppConfig.ConstPrimeDnsHostFileUpdatedFromOutside}\"";
-            try
-            {
-                var numberOfRowsUpdated = SqliteConnect.ExecuteNonQuery(updateCommand, _stateConnectionString);
-                PrimeDns.Log._LogInformation("PrimeDNSState table updated - # of rows updated - " + numberOfRowsUpdated, Logger.ConstSqliteExecuteNonQuery, null);
-            }
-            catch (Exception error)
-            {
-                PrimeDns.Log._LogError("Error occured while updating PrimeDNSState table on Database", Logger.ConstSqliteExecuteNonQuery, error);
-            }
         }
 
         /*
@@ -252,24 +199,6 @@ namespace PrimeDNS.HostFile
                 sw.WriteLine();
                 sw.WriteLine(PrimeDns.Config.PrimeDnsSectionBeginString);
                 sw.WriteLine(PrimeDns.Config.PrimeDnsSectionEndString);
-            }
-        }
-
-        /*
-         * MakePrimeDnsSectionCreatedTrue() sets the PrimeDNSSectionCreated Flag in PrimeDNSState Table to True.
-         */
-        private static void MakePrimeDnsSectionCreatedTrue()
-        {
-            var updateCommand = "UPDATE " + AppConfig.ConstTableNamePrimeDnsState + " SET FlagValue=1" +
-                                $" WHERE FlagName=\"{AppConfig.ConstPrimeDnsSectionCreated}\"";         
-            try
-            {
-                var numberOfRowsUpdated = SqliteConnect.ExecuteNonQuery(updateCommand, _stateConnectionString);
-                PrimeDns.Log._LogInformation("PrimeDNSState table updated - # of rows updated - " + numberOfRowsUpdated, Logger.ConstSqliteExecuteNonQuery, null);
-            }
-            catch (Exception error)
-            {               
-                PrimeDns.Log._LogError("Error occured while updating PrimeDNSState table on Database", Logger.ConstSqliteExecuteNonQuery, error);
             }
         }
 
