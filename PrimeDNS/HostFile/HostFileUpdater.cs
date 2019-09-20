@@ -47,10 +47,16 @@ namespace PrimeDNS.HostFile
             if (!SqliteConnect.CheckPrimeDnsState(AppConfig.ConstPrimeDnsSectionCreated))
             {
                 CreatePrimeDnsSection();
+                Telemetry.Telemetry.PushHostfileWrites();
                 MakePrimeDnsSectionCreatedTrue();
             }
             var isPrimeDnsSectionOkay = IntegrityChecker.CheckPrimeDnsSectionIntegrity(PrimeDns.Config.HostFilePath);
-            if (isPrimeDnsSectionOkay && SqliteConnect.CheckPrimeDnsState(AppConfig.ConstPrimeDnsMapUpdated))
+            PrimeDns.Log._LogInformation("Value of IsPrimeDnsSectionOkay.." + isPrimeDnsSectionOkay.ToString(), Logger.ConstHostFileIntegrity, null);
+            var isMapUpdated = SqliteConnect.CheckPrimeDnsState(AppConfig.ConstPrimeDnsMapUpdated);
+            PrimeDns.Log._LogInformation("Value of IsMapUpdated.." + isMapUpdated.ToString(), Logger.ConstPrimeDnsStateIntegrity, null);
+            var isHostFileUpdatedFromOutside = SqliteConnect.CheckPrimeDnsState(AppConfig.ConstPrimeDnsHostFileUpdatedFromOutside);
+
+            if (isPrimeDnsSectionOkay && (isMapUpdated || isHostFileUpdatedFromOutside))
             {                
                 try
                 {
@@ -61,6 +67,7 @@ namespace PrimeDNS.HostFile
                     if (PrimeDnsBeginLine >= 0)
                         FileHelper.InsertIntoFile(hostfilePath, newPrimeDnsSectionEntries, PrimeDnsBeginLine + 1);
                     MakePrimeDnsMapUpdatedFalse();
+                    MakePrimeDnsHostFileUpdatedFromOutsideFalse();
                     Telemetry.Telemetry.PushHostfileWrites();
                 }
                 catch(IOException ioe)
@@ -69,26 +76,65 @@ namespace PrimeDNS.HostFile
                     Telemetry.Telemetry.PushStatusOfThread("HostFileUpdater", "Failed");
                 }                     
             }
-            else if(!isPrimeDnsSectionOkay && SqliteConnect.CheckPrimeDnsState(AppConfig.ConstPrimeDnsMapUpdated))
+            else if(!isPrimeDnsSectionOkay)
             {
                 FileHelper.RemoveLineFromFile(PrimeDns.Config.HostFilePath, PrimeDns.Config.PrimeDnsSectionBeginString);
                 FileHelper.RemoveLineFromFile(PrimeDns.Config.HostFilePath, PrimeDns.Config.PrimeDnsSectionEndString);
                 CreatePrimeDnsSection();
+                Telemetry.Telemetry.PushHostfileWrites();
+                MakePrimeDnsHostFileUpdatedFromOutsideTrue();
                 PrimeDns.Log._LogWarning("CheckPrimeDnsSectionIntegrity FAILED!!, Continuing..",Logger.ConstHostFileIntegrity,null);
             }
             Telemetry.Telemetry.PushStatusOfThread("HostFileUpdater", "Ended");
-            PrimeDns.Log._LogInformation("Host File Updater Ended at Time : " + time.ToString(), Logger.ConstStartUp, null);           
+            PrimeDns.Log._LogInformation("Host File Updater Ended at Time : " + time.ToString(), Logger.ConstStartUp, null);
+            
             GC.Collect();
             GC.WaitForPendingFinalizers();
         }
 
         /*
-        * MakePrimeDnsMapUpdatedFalse() sets the PrimeDnsMapUpdated flag to true in PrimeDNSState Table.
+        * MakePrimeDnsMapUpdatedFalse() sets the PrimeDnsMapUpdated flag to false in PrimeDNSState Table.
         */
         private static void MakePrimeDnsMapUpdatedFalse()
         {
             var updateCommand = "UPDATE " + AppConfig.ConstTableNamePrimeDnsState + " SET FlagValue=0" +
                                 $" WHERE FlagName=\"{AppConfig.ConstPrimeDnsMapUpdated}\"";
+            try
+            {
+                var numberOfRowsUpdated = SqliteConnect.ExecuteNonQuery(updateCommand, _stateConnectionString);
+                PrimeDns.Log._LogInformation("PrimeDNSState table updated - # of rows updated - " + numberOfRowsUpdated, Logger.ConstSqliteExecuteNonQuery, null);
+            }
+            catch (Exception error)
+            {
+                PrimeDns.Log._LogError("Error occured while updating PrimeDNSState table on Database", Logger.ConstSqliteExecuteNonQuery, error);
+            }
+        }
+
+        /*
+        * MakePrimeDnsHostFileUpdatedFromOutsideFalse() sets the PrimeDnsHostFileUpdatedFromOutside flag to false in PrimeDNSState Table.
+        */
+        private static void MakePrimeDnsHostFileUpdatedFromOutsideFalse()
+        {
+            var updateCommand = "UPDATE " + AppConfig.ConstTableNamePrimeDnsState + " SET FlagValue=0" +
+                                $" WHERE FlagName=\"{AppConfig.ConstPrimeDnsHostFileUpdatedFromOutside}\"";
+            try
+            {
+                var numberOfRowsUpdated = SqliteConnect.ExecuteNonQuery(updateCommand, _stateConnectionString);
+                PrimeDns.Log._LogInformation("PrimeDNSState table updated - # of rows updated - " + numberOfRowsUpdated, Logger.ConstSqliteExecuteNonQuery, null);
+            }
+            catch (Exception error)
+            {
+                PrimeDns.Log._LogError("Error occured while updating PrimeDNSState table on Database", Logger.ConstSqliteExecuteNonQuery, error);
+            }
+        }
+
+        /*
+       * MakePrimeDnsHostFileUpdatedFromOutsideTrue() sets the PrimeDnsHostFileUpdatedFromOutside flag to true in PrimeDNSState Table.
+       */
+        private static void MakePrimeDnsHostFileUpdatedFromOutsideTrue()
+        {
+            var updateCommand = "UPDATE " + AppConfig.ConstTableNamePrimeDnsState + " SET FlagValue=1" +
+                                $" WHERE FlagName=\"{AppConfig.ConstPrimeDnsHostFileUpdatedFromOutside}\"";
             try
             {
                 var numberOfRowsUpdated = SqliteConnect.ExecuteNonQuery(updateCommand, _stateConnectionString);

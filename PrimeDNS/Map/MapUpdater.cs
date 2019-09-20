@@ -28,7 +28,7 @@ namespace PrimeDNS.Map
             _stateConnectionString = PrimeDns.Config.StateConnectionString;
             if(!File.Exists(PrimeDns.Config.MapDatabasePath))
             {
-                CreateAndInitializePrimeDnsState(0,0,0, 0);
+                CreateAndInitializePrimeDnsState(0,0,0,0,0);
             }
         }
 
@@ -257,7 +257,7 @@ namespace PrimeDNS.Map
         /*
          * CreateAndInitializePrimeDnsState() does exactly what it says. Initializes all flags in PrimeDNSState to false.
          */
-        internal static void CreateAndInitializePrimeDnsState(int pSectionCreatedFlag, int pMapCreatedFlag, int pCriticalDomainsUpdatedFlag, int pMapUpdatedFlag)
+        internal static void CreateAndInitializePrimeDnsState(int pSectionCreatedFlag, int pMapCreatedFlag, int pCriticalDomainsUpdatedFlag, int pMapUpdatedFlag, int pHostFileUpdatedFromOutsideFlag)
         {
             CreateTable_PrimeDNSState();
             var insertCommand = "Insert into " + AppConfig.ConstTableNamePrimeDnsState +
@@ -307,6 +307,19 @@ namespace PrimeDNS.Map
             catch (Exception error)
             {
                 PrimeDns.Log._LogError("Error occured while Initializing PrimeDNSMapUpdated in the PrimeDNSState", Logger.ConstPrimeDnsStateIntegrity, error);
+
+            }
+
+            insertCommand = "Insert into " + AppConfig.ConstTableNamePrimeDnsState +
+                            $" values (\"{AppConfig.ConstPrimeDnsHostFileUpdatedFromOutside}\", {pHostFileUpdatedFromOutsideFlag})";
+            try
+            {
+                SqliteConnect.ExecuteNonQuery(insertCommand, _stateConnectionString);
+                PrimeDns.Log._LogInformation("Successfully Initialized PrimeDnsHostFileUpdatedFromOutside in the PrimeDNSState", Logger.ConstPrimeDnsStateIntegrity, null);
+            }
+            catch (Exception error)
+            {
+                PrimeDns.Log._LogError("Error occured while Initializing PrimeDnsHostFileUpdatedFromOutside in the PrimeDNSState", Logger.ConstPrimeDnsStateIntegrity, error);
 
             }
         }

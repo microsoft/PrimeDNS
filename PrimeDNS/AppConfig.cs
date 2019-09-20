@@ -59,6 +59,7 @@ namespace PrimeDNS
         public const string ConstPrimeDnsMapCreated = "PrimeDnsMapCreated";
         public const string ConstPrimeDnsCriticalDomainsUpdated = "PrimeDnsCriticalDomainsUpdated";
         public const string ConstPrimeDnsMapUpdated = "PrimeDnsMapUpdated";
+        public const string ConstPrimeDnsHostFileUpdatedFromOutside = "PrimeDnsHostFileUpdatedFromOutside";
 
         public static IConfiguration Configuration { get; set; }
         public int GetConfig()
