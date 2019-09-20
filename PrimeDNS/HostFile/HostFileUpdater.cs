@@ -51,9 +51,7 @@ namespace PrimeDNS.HostFile
                 MakePrimeDnsSectionCreatedTrue();
             }
             var isPrimeDnsSectionOkay = IntegrityChecker.CheckPrimeDnsSectionIntegrity(PrimeDns.Config.HostFilePath);
-            PrimeDns.Log._LogInformation("Value of IsPrimeDnsSectionOkay.." + isPrimeDnsSectionOkay.ToString(), Logger.ConstHostFileIntegrity, null);
             var isMapUpdated = SqliteConnect.CheckPrimeDnsState(AppConfig.ConstPrimeDnsMapUpdated);
-            PrimeDns.Log._LogInformation("Value of IsMapUpdated.." + isMapUpdated.ToString(), Logger.ConstPrimeDnsStateIntegrity, null);
             var isHostFileUpdatedFromOutside = SqliteConnect.CheckPrimeDnsState(AppConfig.ConstPrimeDnsHostFileUpdatedFromOutside);
 
             if (isPrimeDnsSectionOkay && (isMapUpdated || isHostFileUpdatedFromOutside))
