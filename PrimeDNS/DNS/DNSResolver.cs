@@ -33,8 +33,8 @@ namespace PrimeDNS.DNS
             {
                 var ipToBeAdded = new List<IPAddress>();
 
-                var result = await lookup.QueryAsync(pMapRow.HostName, QueryType.A, pToken);
-                if(result.Header.ResponseCode == DnsResponseCode.NoError)
+                var result = await lookup.QueryAsync(pMapRow.HostName, QueryType.A, QueryClass.IN, pToken);
+                if(result.Header.ResponseCode == DnsHeaderResponseCode.NoError)
                 {
                     pMapRow.LastCheckedTime = DateTime.Now;
                     var records = result.Answers.ARecords().Distinct();

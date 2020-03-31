@@ -7,7 +7,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="DNS" Version="4.0.0" />
-    <PackageReference Include="DnsClient" Version="1.0.7" />
+    <PackageReference Include="DnsClient" Version="1.3.0" />
     <!-- PackageReference Include="Microsoft.Cloud.InstrumentationFramework.Health.NetStd" Version="1.2.1005660001" -->
     <!-- PackageReference Include="Microsoft.Cloud.InstrumentationFramework.Metrics.NetStd" Version="1.2.1005660001" -->
     <!-- PackageReference Include="Microsoft.Cloud.InstrumentationFramework.NetStd" Version="1.2.1005660001" -->
