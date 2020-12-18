@@ -75,5 +75,3 @@ Currently, we have identified 3 main bugs/enhancements where we are looking for 
 # Contact
 
 As we can see, PrimeDNS needs a lot more work to become really useful and so thank you for coming forward to help :relaxed:
-
-PrimeDNS is maintained with :heart: by @arunothia
